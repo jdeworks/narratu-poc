@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+@theme {
+  /* Backgrounds */
+  --color-bg: #ffffff;
+  --color-bg-alt: #f8fafc;
+  --color-surface: #f1f5f9;
+  --color-panel-bg: #f1f5f9;
+  --color-input-bg: #f8fafc;
+
+  /* Text — all meet 4.5:1+ on white and on surface (#f1f5f9) */
+  --color-text: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #5b6b7d;
+
+  /* Borders */
+  --color-border: #e2e8f0;
+
+  /* Primary — #0369a1 on white = 5.9:1, white on #0369a1 = 5.9:1 */
+  --color-primary: #0369a1;
+  --color-primary-hover: #075985;
+  --color-primary-text: #ffffff;
+
+  /* Danger */
+  --color-danger: #dc2626;
+  --color-danger-text: #dc2626;
+
+  /* Emotion badges — amber-800 text on amber-50 bg for 4.5:1+ */
+  --color-emotion-bg: #fffbeb;
+  --color-emotion-text: #92400e;
+
+  /* Origin indicators — must read on surface bg */
+  --color-origin-default: #64748b;
+  --color-origin-analyzed: #0284c7;
+  --color-origin-user: #b45309;
+  --color-origin-default-bg: rgba(100, 116, 139, 0.1);
+  --color-origin-analyzed-bg: rgba(2, 132, 199, 0.1);
+  --color-origin-user-bg: rgba(180, 83, 9, 0.1);
+
+  /* Sliders */
+  --color-slider-track: #cbd5e1;
+  --color-slider-thumb: #0284c7;
+
+  /* Warning banner */
+  --color-warning: #92400e;
+  --color-warning-bg: #fffbeb;
+  --color-warning-border: rgba(245, 158, 11, 0.3);
+
+  /* Canvas wave colors (used via getComputedStyle in canvas rendering) */
+  --color-wave-unplayed: rgba(100, 116, 139, 0.35);
+  --color-wave-noise: rgba(100, 116, 139, 0.15);
+  --color-wave-noise-bar: rgba(100, 116, 139, 0.25);
+  --color-wave-cursor: #dc2626;
+  --color-wave-fade: rgba(220, 38, 38, 0.2);
+}
+
+.dark {
+  /* Backgrounds */
+  --color-bg: #0f172a;
+  --color-bg-alt: #1e293b;
+  --color-surface: #1e293b;
+  --color-panel-bg: rgba(30, 41, 59, 0.6);
+  --color-input-bg: #0f172a;
+
+  /* Text — all meet 4.5:1+ on #0f172a */
+  --color-text: #f1f5f9;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
+
+  /* Borders */
+  --color-border: #334155;
+
+  /* Primary */
+  --color-primary: #38bdf8;
+  --color-primary-hover: #7dd3fc;
+  --color-primary-text: #0f172a;
+
+  /* Danger */
+  --color-danger: #f87171;
+  --color-danger-text: #f87171;
+
+  /* Emotion badges — yellow-200 text on yellow-900/20 bg */
+  --color-emotion-bg: rgba(113, 63, 18, 0.25);
+  --color-emotion-text: #fde68a;
+
+  /* Origin indicators */
+  --color-origin-default: #94a3b8;
+  --color-origin-analyzed: #38bdf8;
+  --color-origin-user: #fbbf24;
+  --color-origin-default-bg: rgba(148, 163, 184, 0.12);
+  --color-origin-analyzed-bg: rgba(56, 189, 248, 0.12);
+  --color-origin-user-bg: rgba(251, 191, 36, 0.12);
+
+  /* Sliders */
+  --color-slider-track: #475569;
+  --color-slider-thumb: #38bdf8;
+
+  /* Warning banner */
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(113, 63, 18, 0.15);
+  --color-warning-border: rgba(251, 191, 36, 0.3);
+
+  /* Canvas wave colors */
+  --color-wave-unplayed: rgba(148, 163, 184, 0.45);
+  --color-wave-noise: rgba(148, 163, 184, 0.12);
+  --color-wave-noise-bar: rgba(148, 163, 184, 0.3);
+  --color-wave-cursor: #f87171;
+  --color-wave-fade: rgba(248, 113, 113, 0.2);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* Focus indicator — visible on keyboard nav, hidden on mouse clicks */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Custom scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-text-muted);
+}

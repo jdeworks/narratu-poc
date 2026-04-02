@@ -1,0 +1,24 @@
+node_modules/
+build/
+dist/
+coverage/
+*.local
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
+.claude/.progress-counter
+
+# Dev-only server (never deploy)
+server/
+
+# Dev scratch files (voice data dumps, one-off scripts)
+scripts/*.json
+scripts/demo-story.txt
+scripts/scrape-hume-voices.ts
+scripts/analyze-demo-story.ts
+scripts/generate-demo-audio.ts
+scripts/generate-elevenlabs-samples.ts
+scripts/generate-narrator-samples.ts

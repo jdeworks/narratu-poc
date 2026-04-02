@@ -1,0 +1,5 @@
+# Makefile.stack — Node.js (default, same as base Makefile)
+# This file exists for completeness. Node.js is the base default.
+PKG_MANAGER ?= npm
+RUN ?= $(PKG_MANAGER) run
+SRC_EXTENSIONS ?= ts,tsx,js,jsx

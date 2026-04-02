@@ -1,0 +1,44 @@
+{
+  "name": "narratu",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AI-powered audiobook creator — turn stories into voiced audiobooks in the browser",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:api": "tsx watch server/dev-api.ts",
+    "tunnel": "vite --host",
+    "build": "tsc && vite build",
+    "test": "vitest run",
+    "format": "prettier --write .",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "demo:generate": "tsx scripts/generate-demo-audio.ts"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/express": "^5.0.6",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "eslint": "^9.24.0",
+    "express": "^5.2.1",
+    "jsdom": "^29.0.1",
+    "prettier": "^3.5.3",
+    "tailwindcss": "^4.2.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.2",
+    "vitest": "^3.1.1"
+  },
+  "dependencies": {
+    "@breezystack/lamejs": "^1.2.7",
+    "localforage": "^1.10.0",
+    "mermaid": "^11.14.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "zustand": "^5.0.12"
+  }
+}

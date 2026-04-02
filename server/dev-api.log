@@ -1,0 +1,6 @@
+[2026-04-02T14:56:40.489Z] [dev-api] Running on http://localhost:4001
+[2026-04-02T14:56:40.490Z] [dev-api] Using: claude -p --model sonnet (streaming)
+[2026-04-02T14:56:43.149Z] [dev-api] Analyzing story (23 chars) for provider: browser...
+[2026-04-02T14:56:44.020Z] ERROR: [dev-api] Error: SyntaxError: Unexpected token 'N', "Not logged"... is not valid JSON
+[2026-04-02T14:57:40.189Z] [dev-api] Analyzing story (7880 chars) for provider: browser...
+[2026-04-02T14:57:41.117Z] ERROR: [dev-api] Error: SyntaxError: Unexpected token 'N', "Not logged"... is not valid JSON
