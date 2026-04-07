@@ -1,5 +1,6 @@
 /** Pre-compute peak data from PCM or AudioBuffer for waveform rendering */
 import { cachedFetch } from "./audio-cache";
+import { createAudioContext, safeDecode } from "./audio-context";
 
 export interface PeakData {
   peaks: number[];   // 0-1 normalized peak values
@@ -26,8 +27,8 @@ export function computePeaks(channelData: Float32Array, buckets: number): number
 export async function loadPeaks(url: string, buckets: number): Promise<PeakData> {
   const res = await cachedFetch(url);
   const buf = await res.arrayBuffer();
-  const ctx = new AudioContext();
-  const decoded = await ctx.decodeAudioData(buf);
+  const ctx = createAudioContext();
+  const decoded = await safeDecode(ctx, buf);
   const peaks = computePeaks(decoded.getChannelData(0), buckets);
   const duration = decoded.duration;
   await ctx.close();
@@ -38,8 +39,8 @@ export async function loadPeaks(url: string, buckets: number): Promise<PeakData>
 export async function loadPeaksAtRate(url: string, peaksPerSecond = 50): Promise<PeakData> {
   const res = await cachedFetch(url);
   const buf = await res.arrayBuffer();
-  const ctx = new AudioContext();
-  const decoded = await ctx.decodeAudioData(buf);
+  const ctx = createAudioContext();
+  const decoded = await safeDecode(ctx, buf);
   const buckets = Math.max(20, Math.round(decoded.duration * peaksPerSecond));
   const peaks = computePeaks(decoded.getChannelData(0), buckets);
   const duration = decoded.duration;

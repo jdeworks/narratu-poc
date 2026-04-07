@@ -161,9 +161,10 @@ async function synthesize(
 
 /** Get audio duration from an MP3 blob using Web Audio API. */
 async function getAudioDuration(blob: Blob): Promise<number> {
-  const ctx = new AudioContext();
+  const { createAudioContext, safeDecode } = await import("../utils/audio-context");
+  const ctx = createAudioContext();
   const buffer = await blob.arrayBuffer();
-  const decoded = await ctx.decodeAudioData(buffer);
+  const decoded = await safeDecode(ctx, buffer);
   const duration = decoded.duration;
   await ctx.close();
   return duration;

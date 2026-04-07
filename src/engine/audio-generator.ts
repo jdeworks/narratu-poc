@@ -6,6 +6,7 @@
 
 import type { TextSegment, VoiceSelections } from "../stores/project-store";
 import type { VoiceOption } from "./tts-chrome";
+import { createAudioContext } from "../utils/audio-context";
 
 export interface GeneratedSegment {
   segmentId: string;
@@ -61,7 +62,7 @@ async function speakAndRecord(
 ): Promise<{ blob: Blob; duration: number }> {
   return new Promise((resolve, reject) => {
     // Create a destination to capture audio
-    const audioCtx = new AudioContext();
+    const audioCtx = createAudioContext();
     const dest = audioCtx.createMediaStreamDestination();
 
     // MediaRecorder to capture the stream

@@ -1,6 +1,7 @@
 import { useMemo, useRef } from "react";
 import { useMixerStore } from "../stores/mixer-store";
 import { computePeaks } from "../utils/peak-utils";
+import { createAudioContext, safeDecode } from "../utils/audio-context";
 
 const PEAKS_PER_SECOND = 50;
 
@@ -22,8 +23,8 @@ export default function MixerRegionPanel({ trackId }: Props) {
     if (!file) return;
 
     const arrayBuf = await file.arrayBuffer();
-    const ctx = new AudioContext();
-    const decoded = await ctx.decodeAudioData(arrayBuf);
+    const ctx = createAudioContext();
+    const decoded = await safeDecode(ctx, arrayBuf);
     const buckets = Math.max(20, Math.round(decoded.duration * PEAKS_PER_SECOND));
     const peaks = computePeaks(decoded.getChannelData(0), buckets);
     const durationMs = decoded.duration * 1000;

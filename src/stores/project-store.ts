@@ -94,7 +94,7 @@ function generateId(): string {
 export const useProjectStore = create<ProjectState>((set, get) => ({
   projectId: null,
   projectName: "Untitled",
-  view: "input",
+  view: "demo",
   storyText: "",
   segments: [],
   characters: [],

@@ -3,6 +3,8 @@
  * Supports fade in/out, padding, de-esser, and brightness via Web Audio API.
  */
 
+import { createAudioContext, ensureResumed } from "./audio-context";
+
 let current: HTMLAudioElement | null = null;
 let onStopCallback: (() => void) | null = null;
 let audioCtx: AudioContext | null = null;
@@ -131,7 +133,8 @@ export function playAudio(
 
   // Set up Web Audio chain: source -> gain -> deEsser -> brightness -> output
   try {
-    audioCtx = new AudioContext();
+    audioCtx = createAudioContext();
+    if (audioCtx.state === "suspended") audioCtx.resume();
     sourceNode = audioCtx.createMediaElementSource(audio);
 
     gainNode = audioCtx.createGain();

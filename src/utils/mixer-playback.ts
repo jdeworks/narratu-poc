@@ -8,6 +8,7 @@
 import { useMixerStore, type MixerRegion } from "../stores/mixer-store";
 import { useSoundStore } from "../stores/sound-store";
 import { cachedFetch } from "./audio-cache";
+import { createAudioContext, ensureResumed, safeDecode } from "./audio-context";
 
 const IS_DEV = (import.meta as any).env?.DEV;
 
@@ -44,7 +45,7 @@ async function decodeOne(id: string, url: string, ctx: AudioContext): Promise<Au
     if (!res.ok) throw new Error(`fetch ${res.status}`);
     const data = await res.arrayBuffer();
     if (data.byteLength === 0) throw new Error("empty response");
-    const buf = await ctx.decodeAudioData(data);
+    const buf = await safeDecode(ctx, data);
     bufferCache.set(id, buf);
     return buf;
   } catch (err) {
@@ -240,7 +241,8 @@ export async function startPlayback(segmentUrls: Record<string, string>) {
   const { segments, cursorMs } = store;
   if (segments.length === 0) return;
 
-  audioCtx = new AudioContext();
+  audioCtx = createAudioContext();
+  await ensureResumed(audioCtx);
   startOffsetMs = cursorMs;
   startTime = audioCtx.currentTime;
 

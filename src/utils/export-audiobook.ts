@@ -1,6 +1,7 @@
 import { processSegment, assembleAudiobook, DEFAULT_CONFIG, type SegmentInput, type AssemblyConfig } from "../engine/audio-processor";
 import { useSegmentSettingsStore } from "../stores/segment-settings-store";
 import { cachedFetch } from "./audio-cache";
+import { createAudioContext, safeDecode } from "./audio-context";
 
 export interface ExportProgress {
   phase: "decoding" | "processing" | "assembling" | "mixing" | "encoding" | "done";
@@ -21,7 +22,7 @@ export async function exportAudiobook(
 
   // 1. Decode all segment audio files
   onProgress({ phase: "decoding", current: 0, total });
-  const ctx = new AudioContext();
+  const ctx = createAudioContext();
   const decoded: Map<string, AudioBuffer> = new Map();
 
   for (let i = 0; i < segments.length; i++) {
@@ -31,7 +32,7 @@ export async function exportAudiobook(
 
     const res = await cachedFetch(url);
     const buf = await res.arrayBuffer();
-    const audio = await ctx.decodeAudioData(buf);
+    const audio = await safeDecode(ctx, buf);
     decoded.set(seg.id, audio);
     onProgress({ phase: "decoding", current: i + 1, total });
   }

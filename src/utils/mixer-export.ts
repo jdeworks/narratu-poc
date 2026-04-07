@@ -8,6 +8,7 @@ import { useSoundStore } from "../stores/sound-store";
 import { useSegmentSettingsStore } from "../stores/segment-settings-store";
 import { processSegment, generatePinkNoise, DEFAULT_CONFIG, type AssemblyConfig } from "../engine/audio-processor";
 import { cachedFetch } from "./audio-cache";
+import { createAudioContext, safeDecode } from "./audio-context";
 
 export interface MixerExportProgress {
   phase: "decoding" | "processing" | "mixing" | "encoding" | "done";
@@ -29,7 +30,7 @@ export async function exportMixerTimeline(
 
   // Use the AudioContext's actual sample rate (system rate, e.g. 48000)
   // so decoded audio matches the output buffer's rate.
-  const audioCtx = new AudioContext();
+  const audioCtx = createAudioContext();
   const sampleRate = audioCtx.sampleRate;
   const totalSamples = Math.ceil((totalDurationMs / 1000 + 1) * sampleRate); // +1s tail
   const output = new Float32Array(totalSamples);
@@ -49,7 +50,7 @@ export async function exportMixerTimeline(
     try {
       const res = await cachedFetch(url);
       const buf = await res.arrayBuffer();
-      const decoded = await audioCtx.decodeAudioData(buf);
+      const decoded = await safeDecode(audioCtx, buf);
 
       onProgress({ phase: "processing", current: i + 1, total });
 
@@ -85,7 +86,7 @@ export async function exportMixerTimeline(
   // 3. Mix in music and SFX regions (decode from sound store blobs)
   const { generated } = useSoundStore.getState();
   onProgress({ phase: "mixing", current: 0, total: regions.length });
-  const mixCtx = new AudioContext();
+  const mixCtx = createAudioContext();
   for (let i = 0; i < regions.length; i++) {
     const region = regions[i];
     const baseId = region.id.replace(/^auto-/, "").replace(/-p\d+$/, "");
@@ -95,7 +96,7 @@ export async function exportMixerTimeline(
     try {
       const res = await fetch(gen.blobUrl);
       const buf = await res.arrayBuffer();
-      const decoded = await mixCtx.decodeAudioData(buf);
+      const decoded = await safeDecode(mixCtx, buf);
       const pcm = decoded.getChannelData(0);
       const vol = region.volume;
 

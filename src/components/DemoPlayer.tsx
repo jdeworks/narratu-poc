@@ -5,6 +5,7 @@ import { demoAssetUrl } from "../types/demo";
 import { computeGapMs, processSegment, DEFAULT_CONFIG } from "../engine/audio-processor";
 import { useSegmentSettingsStore } from "../stores/segment-settings-store";
 import { cachedFetch } from "../utils/audio-cache";
+import { createAudioContext, safeDecode } from "../utils/audio-context";
 
 interface Props {
   manifest: DemoManifest;
@@ -38,7 +39,7 @@ export default function DemoPlayer({ manifest }: Props) {
   // Shared AudioContext — reuse across segments to avoid per-segment creation pops
   function getAudioCtx(): AudioContext {
     if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
-      audioCtxRef.current = new AudioContext();
+      audioCtxRef.current = createAudioContext();
     }
     return audioCtxRef.current;
   }
@@ -100,7 +101,7 @@ export default function DemoPlayer({ manifest }: Props) {
 
         const res = await cachedFetch(timing.audioUrl);
         const arrayBuf = await res.arrayBuffer();
-        const decoded = await audioCtx.decodeAudioData(arrayBuf);
+        const decoded = await safeDecode(audioCtx, arrayBuf);
 
         if (!playingRef.current) return;
 

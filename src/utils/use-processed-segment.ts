@@ -6,6 +6,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { cachedFetch } from "./audio-cache";
+import { createAudioContext, safeDecode } from "./audio-context";
 import { useSegmentSettingsStore } from "../stores/segment-settings-store";
 import { processSegment, generatePinkNoise, DEFAULT_CONFIG, type AssemblyConfig } from "../engine/audio-processor";
 import { computePeaks } from "./peak-utils";
@@ -50,8 +51,8 @@ export function useProcessedSegment(
       try {
         const res = await cachedFetch(audioUrl);
         const buf = await res.arrayBuffer();
-        const ctx = new AudioContext();
-        audioBufferRef.current = await ctx.decodeAudioData(buf);
+        const ctx = createAudioContext();
+        audioBufferRef.current = await safeDecode(ctx, buf);
         await ctx.close();
         if (!cancelled) {
           decodedFlag.current++;

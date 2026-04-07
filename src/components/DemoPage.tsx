@@ -18,6 +18,7 @@ import SoundSidebar from "./SoundSidebar";
 import { useSoundStore } from "../stores/sound-store";
 import { useMixerStore } from "../stores/mixer-store";
 import { computePeaks } from "../utils/peak-utils";
+import { createAudioContext, safeDecode } from "../utils/audio-context";
 import { ensureMixerSegmentsLoaded } from "../utils/load-mixer-segments";
 import { autoPlaceAll } from "../utils/auto-place";
 
@@ -414,8 +415,8 @@ async function loadDemoSounds(sounds: Record<string, { file: string; durationSec
       const blob = await res.blob();
       const blobUrl = URL.createObjectURL(blob);
       const buf = await blob.arrayBuffer();
-      const ctx = new AudioContext();
-      const decoded = await ctx.decodeAudioData(buf);
+      const ctx = createAudioContext();
+      const decoded = await safeDecode(ctx, buf);
       const peaks = computePeaks(decoded.getChannelData(0), Math.round(decoded.duration * 50));
       await ctx.close();
       useSoundStore.getState().setGenerated(id, { blobUrl, peaks, durationMs: decoded.duration * 1000, generating: false });
