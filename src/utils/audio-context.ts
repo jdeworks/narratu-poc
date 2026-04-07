@@ -19,10 +19,10 @@ export async function ensureResumed(ctx: AudioContext): Promise<void> {
 
 /**
  * Decode audio data safely:
- *  - Resumes context if suspended
  *  - Copies the buffer to avoid Safari's ArrayBuffer detachment issue
+ *  - Does NOT resume the context — decodeAudioData works while suspended,
+ *    and calling resume() without a user gesture hangs on Safari.
  */
 export async function safeDecode(ctx: AudioContext, buffer: ArrayBuffer): Promise<AudioBuffer> {
-  await ensureResumed(ctx);
   return ctx.decodeAudioData(buffer.slice(0));
 }
