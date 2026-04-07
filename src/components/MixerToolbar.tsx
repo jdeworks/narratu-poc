@@ -112,8 +112,8 @@ export default function MixerToolbar({ segmentUrls, onClose }: Props) {
         title="Click to jump to a time (m:ss.ms)"
       />
 
-      {/* Zoom — desktop only (timeline hidden on mobile) */}
-      <div className="hidden items-center gap-1.5 sm:flex">
+      {/* Zoom controls */}
+      <div className="flex items-center gap-1.5">
         <button
           onClick={() => {
             // Fit entire timeline in viewport (~720px usable)
@@ -136,14 +136,14 @@ export default function MixerToolbar({ segmentUrls, onClose }: Props) {
           max="500"
           value={zoom}
           onChange={(e) => setZoom(Number(e.target.value))}
-          className="h-1 w-24 cursor-pointer appearance-none rounded-full bg-[var(--color-slider-track)]"
+          className="hidden h-1 w-24 cursor-pointer appearance-none rounded-full bg-[var(--color-slider-track)] sm:block"
         />
         <button onClick={() => setZoom(zoom * 1.5)} className="rounded p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface)]">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /><path d="M11 8v6" /><path d="M8 11h6" />
           </svg>
         </button>
-        <span className="w-12 text-center text-[10px] text-[var(--color-text-muted)]">{Math.round(zoom / 50 * 100)}%</span>
+        <span className="hidden w-12 text-center text-[10px] text-[var(--color-text-muted)] sm:inline">{Math.round(zoom / 50 * 100)}%</span>
       </div>
 
       {/* Close */}

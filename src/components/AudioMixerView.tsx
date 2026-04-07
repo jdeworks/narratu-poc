@@ -81,6 +81,76 @@ export default function AudioMixerView({ segmentAudioUrls, segments, allSpeakers
     return () => el.removeEventListener("wheel", handleWheel);
   }, []);
 
+  // Touch: single-finger pan (with tap threshold), two-finger pinch-zoom
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const PAN_THRESHOLD = 8; // px — movement below this is treated as a tap
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartScrollLeft = 0;
+    let isPanning = false;
+    let initialPinchDist = 0;
+    let initialPinchZoom = 0;
+
+    function handleTouchStart(e: TouchEvent) {
+      if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchStartScrollLeft = useMixerStore.getState().scrollLeft;
+        isPanning = false;
+      } else if (e.touches.length === 2) {
+        e.preventDefault();
+        isPanning = false;
+        initialPinchDist = Math.hypot(
+          e.touches[1].clientX - e.touches[0].clientX,
+          e.touches[1].clientY - e.touches[0].clientY,
+        );
+        initialPinchZoom = useMixerStore.getState().zoom;
+      }
+    }
+
+    function handleTouchMove(e: TouchEvent) {
+      if (e.touches.length === 1 && initialPinchDist === 0) {
+        const dx = touchStartX - e.touches[0].clientX;
+        const dy = touchStartY - e.touches[0].clientY;
+        // Only start panning after exceeding threshold (horizontal bias)
+        if (!isPanning && Math.abs(dx) > PAN_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+          isPanning = true;
+        }
+        if (isPanning) {
+          e.preventDefault();
+          useMixerStore.getState().setScrollLeft(touchStartScrollLeft + dx);
+        }
+      } else if (e.touches.length === 2) {
+        e.preventDefault();
+        const dist = Math.hypot(
+          e.touches[1].clientX - e.touches[0].clientX,
+          e.touches[1].clientY - e.touches[0].clientY,
+        );
+        if (initialPinchDist > 0) {
+          const scale = dist / initialPinchDist;
+          useMixerStore.getState().setZoom(initialPinchZoom * scale);
+        }
+      }
+    }
+
+    function handleTouchEnd() {
+      initialPinchDist = 0;
+      isPanning = false;
+    }
+
+    el.addEventListener("touchstart", handleTouchStart, { passive: false });
+    el.addEventListener("touchmove", handleTouchMove, { passive: false });
+    el.addEventListener("touchend", handleTouchEnd);
+    return () => {
+      el.removeEventListener("touchstart", handleTouchStart);
+      el.removeEventListener("touchmove", handleTouchMove);
+      el.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, []);
+
   return (
     <div className="flex flex-col overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)]">
       <MixerToolbar segmentUrls={segmentAudioUrls} onClose={onClose} />
@@ -364,11 +434,22 @@ function HorizontalScrollbar() {
     window.addEventListener("mouseup", onUp);
   }
 
+  function handleTouchStart(e: React.TouchEvent) {
+    e.preventDefault();
+    scrollFromX(e.touches[0].clientX);
+  }
+
+  function handleTouchMove(e: React.TouchEvent) {
+    scrollFromX(e.touches[0].clientX);
+  }
+
   return (
     <div
       ref={trackRef}
-      className="relative ml-20 flex h-3 cursor-pointer items-center border-t border-[var(--color-border)]/30"
+      className="relative ml-20 flex h-5 cursor-pointer items-center border-t border-[var(--color-border)]/30 sm:h-3"
       onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
     >
       <div
         className="absolute top-0.5 h-2 rounded-full bg-[var(--color-text-muted)]/30 hover:bg-[var(--color-text-muted)]/50"
