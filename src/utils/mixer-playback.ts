@@ -8,7 +8,7 @@
 import { useMixerStore, type MixerRegion } from "../stores/mixer-store";
 import { useSoundStore } from "../stores/sound-store";
 import { cachedFetch } from "./audio-cache";
-import { createAudioContext, ensureResumed, safeDecode } from "./audio-context";
+import { createAudioContext, safeDecode } from "./audio-context";
 
 const IS_DEV = (import.meta as any).env?.DEV;
 
@@ -241,8 +241,14 @@ export async function startPlayback(segmentUrls: Record<string, string>) {
   const { segments, cursorMs } = store;
   if (segments.length === 0) return;
 
-  audioCtx = createAudioContext();
-  await ensureResumed(audioCtx);
+  // Reuse existing AudioContext or create one. Safari requires resume() to be
+  // called synchronously in a user-gesture handler — never await before this.
+  if (!audioCtx || audioCtx.state === "closed") {
+    audioCtx = createAudioContext();
+  }
+  // Fire-and-forget resume — must happen synchronously in the click handler.
+  // Awaiting would break Safari's user-gesture requirement.
+  if (audioCtx.state === "suspended") audioCtx.resume();
   startOffsetMs = cursorMs;
   startTime = audioCtx.currentTime;
 
@@ -297,10 +303,8 @@ export function stopPlayback() {
   }
   scheduledSources = [];
   gainNodes = [];
-  if (audioCtx) {
-    try { audioCtx.close(); } catch { /* ok */ }
-    audioCtx = null;
-  }
+  // Don't close audioCtx — reuse it across play/stop cycles.
+  // Safari won't let us resume a new AudioContext outside a user gesture.
   useMixerStore.getState().setPlaybackState("stopped");
 }
 
