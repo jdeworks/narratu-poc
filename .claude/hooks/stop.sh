@@ -6,6 +6,14 @@ set -uo pipefail
 
 [ ! -f "CHANGES.md" ] && exit 0
 
+# ── Check if e2e tests should have been run ────────────────────────────────
+e2e_warning=""
+if ls playwright.config.* apps/*/playwright.config.* 2>/dev/null | head -1 > /dev/null 2>&1; then
+  if [ ! -f ".verify/last-check" ] || [ "$(find .verify/last-check -mmin +120 2>/dev/null)" ]; then
+    e2e_warning="WARNING: This project has browser tests but make e2e has not been run recently. Run make verify before finishing."
+  fi
+fi
+
 # Detect mode
 mode="full"
 if [ -f "AGENTS.md" ] && grep -q 'Default: \*\*lean\*\*' AGENTS.md 2>/dev/null; then
@@ -66,6 +74,12 @@ if [ "$mode" = "full" ]; then
 You have a started session (${last_started_sid}) without a completed entry.
 In full mode, you MUST append a completed entry to CHANGES.md before finishing."
 
+  if [ -n "$e2e_warning" ]; then
+    MSG+="
+
+$e2e_warning"
+  fi
+
   if [ -n "$progress_lines" ]; then
     MSG+="
 
@@ -97,6 +111,12 @@ fi
 # Lean mode — gentle reminder with draft
 MSG="--- Session end reminder (lean mode) ---
 Consider completing session ${last_started_sid:-?} in CHANGES.md if you removed or renamed symbols."
+
+if [ -n "$e2e_warning" ]; then
+  MSG+="
+
+$e2e_warning"
+fi
 
 if [ -n "$progress_lines" ]; then
   MSG+="

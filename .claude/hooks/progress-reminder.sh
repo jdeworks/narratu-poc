@@ -51,12 +51,22 @@ if [ "$total_changes" -le 1 ] && [ "$progress_count" -gt 0 ]; then
   exit 0
 fi
 
+# Check if verification has been run recently
+verify_nudge=""
+if [ ! -f ".verify/last-check" ] && (ls playwright.config.* apps/*/playwright.config.* 2>/dev/null | head -1 > /dev/null 2>&1 || [ -f "Makefile" ]); then
+  verify_nudge="
+Consider running 'make check' (or 'make verify' for UI projects) to catch issues early."
+elif [ -f ".verify/last-check" ] && [ "$(find .verify/last-check -mmin +60 2>/dev/null)" ]; then
+  verify_nudge="
+It's been a while since you ran verification. Consider 'make check' or 'make verify' before continuing."
+fi
+
 # Build a concise reminder
 MSG="--- Progress tracking reminder ---
 Session $last_started_sid has $progress_count progress line(s) logged and ~$total_changes file(s) changed.
 If you've completed a logical unit of work, append a progress line to CHANGES.md now:
   - progress: <what was done> | <files>
-This keeps the session log accurate even if the session is interrupted.
+This keeps the session log accurate even if the session is interrupted.$verify_nudge
 ---"
 
 escaped=$(printf '%s' "$MSG" | python3 -c "import sys,json; sys.stdout.write(json.dumps(sys.stdin.read()))" 2>/dev/null || printf '"%s"' "$MSG")

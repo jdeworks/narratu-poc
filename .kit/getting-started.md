@@ -5,7 +5,6 @@ Guided workflow for starting a new website project — from idea to working dev 
 ## Step 1: Understand the project
 
 Ask the user:
-
 > "What do you want to build? Describe your website — what it does, who it's for, and any
 > features you have in mind. Don't worry about technical details."
 
@@ -21,7 +20,6 @@ Figure out if the project needs a server or is purely static:
   Examples: dashboard, e-commerce, social app.
 
 For beginners, explain it simply:
-
 > "**Option A** is a website that shows information — like a digital poster. Everyone sees the
 > same thing. **Option B** is a website where people can log in or save things — like Instagram.
 > Based on what you described, I'd recommend Option [A/B] because [reason]."
@@ -41,7 +39,6 @@ environment! The page in your browser will update automatically as we make chang
 ### About node_modules
 
 After `npm install`, a `node_modules` folder appears. It contains helper code your project needs:
-
 - Don't edit files in there — npm manages them
 - Don't worry about its size — that's normal
 - It's not saved to Git — `.gitignore` skips it
@@ -80,26 +77,21 @@ This ensures later prompts know what was chosen without re-asking.
 Based on the project type, point to the right docs:
 
 **For all projects:**
-
 - `.kit/stack-choice.md` — decide on a framework (or confirm vanilla is right)
 - `.kit/project-structure.md` — organize files
 - `.kit/design-and-styling.md` — styling and accessibility
 - `.kit/security.md` — security basics
 
 **For static sites:**
-
 - `.kit/hosting-static.md` — deploy to GitHub Pages, Vercel, or Netlify
 
 **For server apps:**
-
 - `.kit/hosting-server.md` — deploy with a server
 
 **When they need more interactivity:**
-
 - `.kit/react-upgrade.md` — upgrade from vanilla to React
 
 **For CI/CD (requires Git):**
-
 - `.kit/cicd.md` — automated testing and deployment
 
 ## Verify

@@ -34,11 +34,9 @@ feed dead code detection — removed symbols noted in progress lines are checked
 ## When to write entries
 
 **Always write a started entry when:**
-
 - You begin any work session (the session-start hook will prompt you)
 
 **Always write a progress line when:**
-
 - You finish a logical unit of work (bug fix, feature, refactor step) — before moving on
 - You remove, rename, or restructure any symbols — note the removed names
 - You've been working for a while and haven't logged anything yet
@@ -54,13 +52,11 @@ immediately. Untracked files silently accumulate across sessions and cause confu
 session end, `git status` should show a clean working tree.
 
 **Always write a completed entry when:**
-
 - A session ends in full mode (the stop hook will auto-draft one)
 - You removed, renamed, or restructured symbols (any mode)
 - You refactored something touching more than 3 files
 
 **You may skip the completed entry when:**
-
 - Session is lean mode and you only added new code (no removals)
 - You only changed comments, formatting, or config values
 
@@ -69,14 +65,12 @@ session end, `git status` should show a clean working tree.
 ## Format
 
 **Start entry:**
-
 ```
 ## [YYYY-MM-DDTHH:MM] session-<id> | status: started | mode: full|lean | type: add|fix|refactor|chore
 intent: One line describing what this session will do
 ```
 
 **Progress lines** (appended under the session header as work happens):
-
 ```
 - progress: <what was done> | <files touched>
 - progress: Replaced OldThing with NewThing | src/foo.ts (removed: OldThing)
@@ -88,7 +82,6 @@ them in parentheses so `analyze-changes.sh` can detect dead code. Progress lines
 a substitute for the completed entry — they're incremental breadcrumbs.
 
 **Completed entry:**
-
 ```
 ## [YYYY-MM-DDTHH:MM] session-<id> | status: completed | mode: full|lean | type: add|fix|refactor|chore
 files_touched: path/to/file.ts, path/to/other.ts
@@ -102,7 +95,6 @@ health_snapshot: LOC=4234, tests=312, complexity=ok|warn|fail
 **Session ID:** Use 4 alphanumeric characters (e.g. `a1b2`). Same ID for both start and end.
 
 **Status values:**
-
 - `started` — session is in progress
 - `completed` — session finished normally
 - `abandoned` — session was interrupted and won't be completed (write this to close an orphan)
@@ -140,7 +132,6 @@ fix must have a regression test.
 ## What counts as a symbol
 
 A symbol is anything exported and importable from another file:
-
 - Functions: `export function doThing()`
 - Classes: `export class MyService`
 - Types/interfaces: `export type Foo`, `export interface Bar`
@@ -208,7 +199,6 @@ health_snapshot: LOC=4110, tests=289, complexity=ok
 ## Keeping it honest
 
 The value degrades fast with vague entries. These are bad:
-
 - `reason: refactored some stuff` — useless
 - `symbols_removed: (none)` when you deleted 3 functions — dishonest
 - Missing `tests_added` on a fix entry — violates the regression test rule
@@ -226,3 +216,12 @@ sessions. Git history preserves all removed entries (`git log -p -- CHANGES.md`)
 This prevents the file from growing unbounded and bloating context injection. The rotation
 is performed by `scripts/rotate-changes.sh`, invoked from `session-start.sh`. You can test
 it with `bash scripts/rotate-changes.sh --dry-run`.
+
+---
+
+## Retrospective
+
+At project completion or a major milestone, write a Lessons Learned section in the README.
+See `.kit/retrospective.md` for the template and structure. This captures what worked, what
+didn't, and what you'd do differently — valuable context for future projects using this
+starter kit.

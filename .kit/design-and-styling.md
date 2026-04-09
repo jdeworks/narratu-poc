@@ -70,10 +70,43 @@ Don't mix arbitrary pixel values.
 - Lazy-load images below the fold: `loading="lazy"`
 - Keep images in `public/` — they're copied as-is during build
 
+## Accessibility baseline
+
+Non-negotiable minimums for every page. The starter CSS files include these rules already.
+
+- **Text contrast:** 4.5:1 minimum (WCAG AA). Document color choices in CSS comments.
+- **Touch targets:** 44px minimum height on mobile (`py-3` on buttons/links).
+- **Semantic HTML:** use `<button>` not `<span role="button">`, `<nav>` for navigation, `<main>` for content.
+- **Skip link:** first focusable element should be "Skip to main content" (sr-only, visible on focus).
+- **`lang` attribute:** always set on `<html>` (e.g. `<html lang="en">`).
+- **Focus visible:** `:focus-visible` for keyboard users, hidden on mouse click.
+- **Reduced motion:** `prefers-reduced-motion` media query disables animations.
+- **Form labels:** every `<input>` needs an associated `<label>` (not just placeholder text).
+- **Reference:** use the [make-it-look-good](https://github.com/jdeworks/make-it-look-good) design analyzer for automated scoring.
+
+## Mobile sidebar drawer pattern
+
+Common pattern for responsive sidebars in SPAs:
+
+- **Desktop:** `hidden sm:flex` keeps the sidebar always visible alongside main content.
+- **Mobile:** fixed overlay with dark backdrop + slide-in panel. Tap the overlay to close.
+- **Right sidebars:** same pattern but use `justify-end` on the overlay container.
+- **Navigation actions** should close the drawer (pass an `onNavigate` callback that sets open state to false).
+
+```
+<!-- Desktop: always visible -->
+<aside class="hidden sm:flex sm:w-64 ...">...</aside>
+
+<!-- Mobile: overlay + slide-in -->
+<div class="fixed inset-0 z-40 flex sm:hidden" v-if="open">
+  <div class="fixed inset-0 bg-black/50" @click="close" />
+  <div class="relative w-64 bg-white ...">...</div>
+</div>
+```
+
 ## Contact forms
 
 Don't build a backend just for a contact form. Use:
-
 - **Formspree** — free tier, easy setup
 - **Netlify Forms** — if hosting on Netlify
 - **mailto: link** — simplest option for basic contact

@@ -166,8 +166,11 @@ if [ -n "$staged_changes" ]; then
   ctx+="\n"
 fi
 if [ -n "$abandoned" ]; then
-  ctx+="### Abandoned sessions (started but never completed)\n${abandoned}"
-  ctx+="Review these — complete or mark as abandoned before starting new work.\n\n"
+  ctx+="### ⚠ Abandoned sessions — resolve before starting new work\n${abandoned}"
+  ctx+="**You must address these before writing any code:**\n"
+  ctx+="1. **Resume** — continue the work and complete the session\n"
+  ctx+="2. **Abandon** — add \`status: abandoned\` entry to CHANGES.md with a reason\n"
+  ctx+="3. **Review staged changes** — run \`git diff --cached\` and either commit or unstage\n\n"
 fi
 if [ -n "$recent" ]; then
   ctx+="\n### Recent session history\n${recent}\n"

@@ -9,14 +9,12 @@ touches, and what tests it needs.
 ## When to write a spec
 
 Write one when:
-
 - The feature touches more than 3 files
 - You're unsure about the architecture or data model
 - The feature has external dependencies (API integrations, new DB tables, auth changes)
 - Multiple approaches are possible and you haven't decided between them
 
 Skip the spec for:
-
 - Bug fixes with a clear root cause
 - Small additions to existing patterns (adding a new route that follows the existing pattern)
 - Config and tooling changes
@@ -31,36 +29,29 @@ Create `.kit/features/<feature-name>.md`:
 # Feature: <name>
 
 ## What it does (one paragraph)
-
 ...
 
 ## What it doesn't do (non-goals)
-
 ...
 
 ## Files touched
-
 - `src/...` — reason
 - `src/...` — reason
 
 ## New symbols
-
 - `FunctionName` in `src/...` — purpose
 - `TypeName` in `src/...` — purpose
 
 ## Tests needed
-
 - Unit: ...
 - Integration: ...
 - Architecture: any new conventions to enforce?
 
 ## Open questions
-
 - [ ] Question 1
 - [ ] Question 2
 
 ## Decision log
-
 - [YYYY-MM-DD] Decided X over Y because Z
 ```
 
@@ -86,7 +77,6 @@ integration with an external system — use think-tank to iron out the details b
 through architecture, tech stack, security, and trade-offs via structured conversation.
 
 Run it on the feature before writing the spec:
-
 1. Describe the feature in think-tank
 2. Answer its questions about architecture, constraints, and trade-offs
 3. Export the resulting plan as Markdown

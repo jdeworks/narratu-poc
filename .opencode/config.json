@@ -1,0 +1,8 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "hooks": {
+    "session_start": "bash .opencode/hooks/session-start.sh",
+    "session_end": "bash .opencode/hooks/session-end.sh"
+  },
+  "instructions": ["AGENTS.md"]
+}

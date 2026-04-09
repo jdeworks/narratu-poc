@@ -30,7 +30,6 @@ jobs:
 ## Status badge
 
 Add to your README:
-
 ```markdown
 ![CI](https://github.com/USERNAME/REPO/actions/workflows/ci.yml/badge.svg)
 ```
@@ -43,7 +42,6 @@ If deploying to GitHub Pages, you can combine CI checks and deployment:
 2. Keep `deploy.yml` for pushes to main (test + deploy)
 
 Or use a single workflow with conditions:
-
 ```yaml
 - run: npm run build
 - if: github.ref == 'refs/heads/main'

@@ -4,52 +4,52 @@ How to deploy websites that need a server (API, database, SSR).
 
 ## Platform options
 
-| Platform         | Best for                             | Free tier              |
-| ---------------- | ------------------------------------ | ---------------------- |
-| **Railway**      | Quick deployment, databases included | $5/month credit        |
-| **Fly.io**       | Global edge deployment               | 3 shared VMs free      |
-| **Render**       | Simple PaaS, auto-deploy from Git    | Free tier (spins down) |
-| **Docker + VPS** | Full control                         | Varies                 |
+| Platform | Best for | Free tier |
+|----------|----------|-----------|
+| **Railway** | Quick deployment, databases included | $5/month credit |
+| **Fly.io** | Global edge deployment | 3 shared VMs free |
+| **Render** | Simple PaaS, auto-deploy from Git | Free tier (spins down) |
+| **Docker + VPS** | Full control | Varies |
 
 ## Minimal server example (Express)
 
 ```javascript
-import express from "express";
-import helmet from "helmet";
-import cors from "cors";
-import rateLimit from "express-rate-limit";
+import express from 'express'
+import helmet from 'helmet'
+import cors from 'cors'
+import rateLimit from 'express-rate-limit'
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const app = express()
+const PORT = process.env.PORT || 3000
 
 // Security middleware
-app.use(helmet());
-app.use(cors());
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
-app.use(express.json());
+app.use(helmet())
+app.use(cors())
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }))
+app.use(express.json())
 
 // Serve static frontend
-app.use(express.static("public"));
+app.use(express.static('public'))
 
 // API routes
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
-});
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' })
+})
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
 ```
 
 ## Database setup (SQLite example)
 
 ```javascript
-import Database from "better-sqlite3";
+import Database from 'better-sqlite3'
 
-const DB_PATH = process.env.DB_PATH || "./data/app.db";
-const db = new Database(DB_PATH);
-db.pragma("journal_mode = WAL"); // better concurrent read performance
+const DB_PATH = process.env.DB_PATH || './data/app.db'
+const db = new Database(DB_PATH)
+db.pragma('journal_mode = WAL')  // better concurrent read performance
 
 // Always use parameterized queries
-const user = db.prepare("SELECT * FROM users WHERE id = ?").get(userId);
+const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId)
 ```
 
 ## Railway deployment
@@ -82,7 +82,6 @@ CMD ["node", "server.js"]
 ## Other server frameworks
 
 The patterns above apply to any Node.js server framework. For non-JS stacks:
-
 - **Python (Flask/FastAPI):** Deploy to Railway or Fly.io with a `Procfile` or Dockerfile
 - **Go:** Build a static binary, deploy anywhere
 - **Ruby (Rails):** Render and Railway have first-class Rails support

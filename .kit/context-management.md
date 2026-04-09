@@ -46,8 +46,8 @@ This is designed to be read in full at session start. Keep it under 100 lines.
 
 If you need to compress mid-session without triggering the hook:
 
-1. Ask the agent: _"Summarise what we've done this session, what decisions we've made,
-   what's currently broken, and what we're doing next. Write this to SESSION_SUMMARY.md."_
+1. Ask the agent: *"Summarise what we've done this session, what decisions we've made,
+   what's currently broken, and what we're doing next. Write this to SESSION_SUMMARY.md."*
 2. Start a new session — SESSION_SUMMARY.md will be picked up by the SessionStart hook
 
 ---
@@ -58,9 +58,43 @@ For features that will take many sessions:
 
 1. Write a spec before starting (see `.kit/research-planning.md`)
 2. The spec lives in `.kit/features/<feature-name>.md` — not in context
-3. At the start of each session, tell the agent: _"Read .kit/features/<feature-name>.md
-   and SESSION_SUMMARY.md before we continue."_
+3. At the start of each session, tell the agent: *"Read .kit/features/<feature-name>.md
+   and SESSION_SUMMARY.md before we continue."*
 4. The agent doesn't need to re-derive the full context — it just needs the delta
+
+---
+
+## Task boundary discipline
+
+Context degrades over time. Prefer many small, verified sessions over one long session.
+
+### Never start a new task with a broken current task
+
+If the current task hasn't passed `make verify` (or `make check`), do not start a new one.
+Fix what's broken first. Starting new work on top of broken work compounds the problem.
+
+### Compress at task boundaries
+
+If context is getting long (~50% through or the agent starts forgetting earlier decisions):
+1. Finish the current task
+2. Run `make verify` — everything must pass
+3. Commit all passing work
+4. Log completed entry in CHANGES.md
+5. Then start a new session
+
+The next session starts with a clean, verified codebase and clear SESSION_SUMMARY.md.
+
+### Each session leaves the project working
+
+Every session should end with:
+- All tests passing
+- No console errors
+- Work committed
+- CHANGES.md updated
+
+If a session ends with broken state, the next session wastes time re-establishing context
+and debugging issues from the previous session. This is the most common source of
+quality degradation in multi-session work.
 
 ---
 
@@ -69,7 +103,6 @@ For features that will take many sessions:
 AGENTS.md loads into every session. If it's too long, the agent's instruction adherence drops.
 
 **Don't put in AGENTS.md:**
-
 - Feature-specific instructions ("when working on the auth system, remember that...")
 - Temporary notes or reminders
 - Code snippets or examples

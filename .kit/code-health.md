@@ -10,7 +10,6 @@ forces you. The file size limits below are a safety net — they should rarely t
 with the right structure.
 
 When creating a new feature, begin with separate files for separate concerns:
-
 - One file per entity, system, or service — not one file per "phase of development"
 - Config and constants in their own file from the start
 - Types/interfaces in a dedicated file once there are more than a handful
@@ -39,7 +38,7 @@ creation for "later" — later never comes, and untested files accumulate silent
 
 The health check warns when source files have no corresponding test. Not every file needs
 deep tests (thin rendering wrappers may just need a smoke test), but every file should have
-_something_ that breaks if the file's contract changes.
+*something* that breaks if the file's contract changes.
 
 ## Commit size
 
@@ -52,11 +51,11 @@ This also makes `CHANGES.md` entries more meaningful.
 
 ## File size limits
 
-| Type        | Soft limit | Hard limit |
-| ----------- | ---------- | ---------- |
-| Source file | 250 LOC    | 350 LOC    |
-| Test file   | 400 LOC    | 500 LOC    |
-| Config file | 100 LOC    | 150 LOC    |
+| Type | Soft limit | Hard limit |
+|------|-----------|------------|
+| Source file | 250 LOC | 350 LOC |
+| Test file | 400 LOC | 500 LOC |
+| Config file | 100 LOC | 150 LOC |
 
 When a file approaches the soft limit: split it. When it hits the hard limit: split it now, before
 adding more code. The health-check script warns at soft, fails at hard.
@@ -64,12 +63,20 @@ adding more code. The health-check script warns at soft, fails at hard.
 **How to split:** Extract by responsibility, not by size. A 300-line file with one clear job is fine.
 A 200-line file doing three unrelated things needs splitting even if it's under the limit.
 
+**Extract before expanding.** When a file approaches the soft limit, extract the next
+responsibility *before* adding new code. Don't wait for the hard limit — by then the
+extraction is an emergency and the split points are harder to find. The pattern:
+
+1. File at soft limit → identify the most separable responsibility
+2. Extract to a new file with a clean interface
+3. Then add your new code to whichever file it belongs in
+
 ## Function size limits
 
-| Type                      | Soft limit | Hard limit |
-| ------------------------- | ---------- | ---------- |
-| Regular function          | 60 LOC     | 80 LOC     |
-| Complex handler / reducer | 100 LOC    | 150 LOC    |
+| Type | Soft limit | Hard limit |
+|------|-----------|------------|
+| Regular function | 60 LOC | 80 LOC |
+| Complex handler / reducer | 100 LOC | 150 LOC |
 
 Functions over the soft limit are a smell. Functions over the hard limit are a bug in the architecture.
 
@@ -82,7 +89,6 @@ Functions over the soft limit are a smell. Functions over the hard limit are a b
 ## Total LOC budget
 
 Each variant sets its own budget in `scripts/health-check.sh`. The base default is:
-
 - **5,000 LOC** for a lean project
 - **15,000 LOC** for a full project
 
@@ -99,6 +105,21 @@ and don't always clean up what they replaced.
 - Check `CHANGES.md` — any `symbols_removed` entry that's more than 2 sessions old and
   still appears in grep results is confirmed dead code
 - Dead code is not a style issue — it's a navigation tax on every future session
+
+## Dead code from provider switches
+
+When switching libraries or providers (e.g. replacing one TTS engine with another, swapping
+an auth library), import analysis alone misses string constants like `"HUME_AI"` or
+`"old-provider"` that may linger in config objects, switch statements, or type unions.
+
+After a major provider switch:
+
+1. **Grep for the old name** as a string literal across the entire codebase (`rg "OLD_PROVIDER"`)
+2. **Check enum/union types** — old variants may still compile but never match at runtime
+3. **Schedule an explicit cleanup session** within 1-2 sessions of the switch
+4. **Log removed symbols** in CHANGES.md so future sessions can verify cleanup was complete
+
+The pattern: switch provider -> ship it working -> next session, grep and clean.
 
 ## What the health check does NOT enforce
 

@@ -24,7 +24,7 @@ Narratu ("you narrate" in Latin) is an AI-powered audiobook creator that runs en
 - **TTS (dev):** Chrome Web Speech API (free)
 - **TTS (prod):** BYOK — Hume AI, Cartesia, or ElevenLabs preferred
 - **Audio:** Web Audio API for mixing/playback, MP3 export
-- **Hosting:** GitHub Pages (static, from `docs/` on `dev` branch)
+- **Hosting:** GitHub Pages (static, from `.kit/` on `dev` branch)
 
 ## Key commands
 
@@ -42,7 +42,7 @@ npm run tunnel  # dev server accessible via cloudflare tunnel
 
 - `src/` — React components, engine, providers, stores
 - `tests/` — Vitest tests
-- `docs/` — built output (served by GitHub Pages)
+- `.kit/` — built output (served by GitHub Pages)
 - `public/` — static assets (images, fonts, favicon)
 
 ## Core user flow
@@ -71,28 +71,29 @@ npm run tunnel  # dev server accessible via cloudflare tunnel
 
 Read these when the situation calls for it. Do not load all of them upfront.
 
-| Doc                          | Read when                                                                |
-| ---------------------------- | ------------------------------------------------------------------------ |
-| `.kit/code-health.md`        | Starting a new feature, adding files, or a file is getting large/complex |
-| `.kit/testing.md`            | Writing or reviewing tests; starting a new feature                       |
-| `.kit/llm-testing.md`        | Adding or modifying any code that calls an LLM                           |
-| `.kit/changelog-protocol.md` | End of session, before compressing context, or after removing symbols    |
-| `.kit/context-management.md` | Context is filling up or you're about to compact                         |
-| `.kit/research-planning.md`  | Starting a non-trivial feature; unsure about architecture                |
-| `.kit/modules/full.md`       | Switching to full mode mid-session                                       |
-| `.kit/modules/lean.md`       | Switching to lean mode mid-session                                       |
-| `.kit/git-and-github.md`     | Commit hygiene, branching, pre-commit hooks, PR best practices           |
+| Doc | Read when |
+|-----|-----------|
+| `.kit/code-health.md` | Starting a new feature, adding files, or a file is getting large/complex |
+| `.kit/testing.md` | Writing or reviewing tests; starting a new feature |
+| `.kit/llm-testing.md` | Adding or modifying any code that calls an LLM |
+| `.kit/changelog-protocol.md` | End of session, before compressing context, or after removing symbols |
+| `.kit/context-management.md` | Context is filling up or you're about to compact |
+| `.kit/research-planning.md` | Starting a non-trivial feature; unsure about architecture |
+| `.kit/modules/full.md` | Switching to full mode mid-session |
+| `.kit/modules/lean.md` | Switching to lean mode mid-session |
+| `.kit/git-and-github.md` | Commit hygiene, branching, pre-commit hooks, PR best practices |
+| `.kit/verification.md` | Defining "done" — browser checks, proof requirements, console error gate |
+| `.kit/retrospective.md` | End of project/milestone — writing a "Lessons Learned" section for the README |
 
 ---
 
 ## Non-negotiable rules (active in all modes)
 
 1. **No feature is done without tests.** At minimum: one passing test per exported function.
-2. **Run `make check` before declaring work complete.** Fix all failures before stopping.
+2. **Run `make verify` before declaring work complete** (or `make check` for non-UI projects). Fix all failures before stopping.
 3. **CHANGES.md — track progress as you go, not just at start/end.**
 
    **a) START:** Before writing any code, append a started entry:
-
    ```
    ## [YYYY-MM-DDTHH:MM] session-<id> | status: started | mode: full|lean | type: add|fix|refactor|chore
    intent: One line describing what this session will do
@@ -100,17 +101,14 @@ Read these when the situation calls for it. Do not load all of them upfront.
 
    **b) PROGRESS:** After completing each logical unit of work (a bug fix, a feature, a refactor
    step), append a progress line under the current session **before moving to the next task**:
-
    ```
    - progress: <what was done> | <files touched>
    ```
-
    This is lightweight — one line per chunk, not a full entry. If you removed or renamed symbols,
    note them: `- progress: Replaced OldThing with NewThing | src/foo.ts (removed: OldThing)`.
    **Do not batch progress lines at the end.** Log each chunk as you finish it.
 
    **c) END:** When work is complete, append a completed entry:
-
    ```
    ## [YYYY-MM-DDTHH:MM] session-<id> | status: completed | mode: full|lean | type: add|fix|refactor|chore
    files_touched: <files you changed>
@@ -146,20 +144,23 @@ Read these when the situation calls for it. Do not load all of them upfront.
    - **Dead code** — symbols noted as `(removed: ...)` in progress lines or `symbols_removed` that
      still appear in source. Clean them up before starting new work.
    - **Fix hotspots** — areas with repeated fixes need better test coverage.
-     See `.kit/testing.md` § Regression tests.
+   See `.kit/testing.md` § Regression tests.
+
+9. **Console errors are bugs.** If any `console.error` or uncaught exception exists in the browser, fix it before moving on. Never ignore console output.
+10. **Show proof when claiming done.** Include test output, `make verify` results, or console log excerpt proving zero errors. Never claim success without verification output.
+11. **Finish and verify each task before starting the next.** Do not batch multiple features into one verification pass. See `.kit/verification.md` for phase discipline.
+12. **Before context compression or session end:** `make verify` must pass and work must be committed. Never compress mid-task if avoidable — compress at task boundaries.
 
 ---
 
 ## Hooks (Claude Code — supplementary)
-
 Hooks run automatically via `.claude/settings.json` but are **helpers, not the enforcement**.
 The rules above apply to all agents whether hooks exist or not.
-
 - After every file edit: health check warning + auto-format
 - Before context compact: changelog analysis + session summary written
 - On session start: session summary + abandoned session detection
-- Periodic progress reminder: every ~5 user messages, checks for recent progress logging
-- On stop: auto-drafts completed entry from git diff + progress lines
+- Periodic progress + verification reminder: every ~5 messages, checks progress logging and nudges verification
+- On stop: auto-drafts completed entry from git diff + progress lines; warns if e2e not run
 - Pre-commit: warns if no progress lines logged for the current session
 
 ---

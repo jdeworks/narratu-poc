@@ -5,7 +5,6 @@ Setup checklist before starting a web project. Read this if you're new to web de
 ## Experience level
 
 Your experience level determines how much explanation you need:
-
 - **Total beginner:** Never coded before. We'll explain everything.
 - **Some experience:** Knows HTML/CSS basics. We'll focus on tooling setup.
 - **Comfortable:** Has built projects before. Just verify tools are installed.
@@ -15,18 +14,15 @@ Your experience level determines how much explanation you need:
 Node.js runs JavaScript outside the browser. You need version 20 or newer.
 
 **Check if installed:**
-
 ```bash
 node --version
 ```
 
 **Install if needed:**
-
 - Download from https://nodejs.org (LTS version)
 - Or use a version manager: `nvm install --lts` (recommended for managing multiple versions)
 
 npm (the package manager) comes bundled with Node.js:
-
 ```bash
 npm --version
 ```
@@ -34,12 +30,10 @@ npm --version
 ## Code editor
 
 Use any editor you're comfortable with. Recommendations:
-
 - **VS Code** — free, excellent extension ecosystem
 - **Cursor** — VS Code fork with built-in AI
 
 Helpful extensions:
-
 - Tailwind CSS IntelliSense (if using Tailwind)
 - ESLint
 - Prettier
@@ -49,19 +43,16 @@ Helpful extensions:
 Git tracks changes to your code. You don't need it to start, but you'll need it for deployment and collaboration.
 
 **Check if installed:**
-
 ```bash
 git --version
 ```
 
 **Install if needed:**
-
 - macOS: `xcode-select --install`
 - Windows: Download from https://git-scm.com
 - Linux: `sudo apt install git` (or your distro's package manager)
 
 **First-time setup:**
-
 ```bash
 git config --global user.name "Your Name"
 git config --global user.email "your@email.com"

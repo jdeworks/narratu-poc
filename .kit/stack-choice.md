@@ -55,13 +55,13 @@ to choose a different framework.
 
 ## Mapping kit patterns to your stack
 
-| Kit concept   | Vanilla/Vite | Astro         | Next.js       | Nuxt            | SvelteKit    |
-| ------------- | ------------ | ------------- | ------------- | --------------- | ------------ |
-| Dev server    | `vite`       | `astro dev`   | `next dev`    | `nuxt dev`      | `vite dev`   |
-| Build         | `vite build` | `astro build` | `next build`  | `nuxt build`    | `vite build` |
-| Test runner   | Vitest       | Vitest        | Vitest/Jest   | Vitest          | Vitest       |
-| Lint          | ESLint       | ESLint        | ESLint        | ESLint          | ESLint       |
-| Format        | Prettier     | Prettier      | Prettier      | Prettier        | Prettier     |
-| Static deploy | dist/        | dist/         | out/ (export) | .output/public/ | build/       |
+| Kit concept | Vanilla/Vite | Astro | Next.js | Nuxt | SvelteKit |
+|-------------|-------------|-------|---------|------|-----------|
+| Dev server | `vite` | `astro dev` | `next dev` | `nuxt dev` | `vite dev` |
+| Build | `vite build` | `astro build` | `next build` | `nuxt build` | `vite build` |
+| Test runner | Vitest | Vitest | Vitest/Jest | Vitest | Vitest |
+| Lint | ESLint | ESLint | ESLint | ESLint | ESLint |
+| Format | Prettier | Prettier | Prettier | Prettier | Prettier |
+| Static deploy | dist/ | dist/ | out/ (export) | .output/public/ | build/ |
 
 Update `Makefile` targets to match your stack's commands.

@@ -32,10 +32,10 @@ Railway) provide HTTPS automatically.
 
 ```javascript
 // WRONG — SQL injection
-db.prepare(`SELECT * FROM users WHERE id = ${userInput}`);
+db.prepare(`SELECT * FROM users WHERE id = ${userInput}`)
 
 // RIGHT — parameterized
-db.prepare("SELECT * FROM users WHERE id = ?").get(userInput);
+db.prepare('SELECT * FROM users WHERE id = ?').get(userInput)
 ```
 
 ## Dependencies
@@ -47,7 +47,6 @@ db.prepare("SELECT * FROM users WHERE id = ?").get(userInput);
 ## Authentication
 
 Don't build authentication from scratch. Use a service:
-
 - **Clerk** — full-featured, great DX
 - **Auth0** — enterprise-ready
 - **Supabase Auth** — if already using Supabase
@@ -56,19 +55,18 @@ Don't build authentication from scratch. Use a service:
 ## Server security (if applicable)
 
 If your site has a server component, add these middleware:
-
 - **helmet** — sets security headers
 - **cors** — restricts cross-origin requests to known origins
 - **express-rate-limit** — prevents abuse
 
 ```javascript
-import helmet from "helmet";
-import cors from "cors";
-import rateLimit from "express-rate-limit";
+import helmet from 'helmet'
+import cors from 'cors'
+import rateLimit from 'express-rate-limit'
 
-app.use(helmet());
-app.use(cors({ origin: "https://yourdomain.com" }));
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+app.use(helmet())
+app.use(cors({ origin: 'https://yourdomain.com' }))
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }))
 ```
 
 ## Pre-launch checklist

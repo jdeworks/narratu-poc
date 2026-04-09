@@ -1,7 +1,7 @@
 # LLM integration testing
 
 > **Token cost note:** Running real LLM calls in tests costs money and is non-deterministic.
-> Everything in this doc is designed to give you confidence in your LLM integration _without_
+> Everything in this doc is designed to give you confidence in your LLM integration *without*
 > hitting the API in your test suite. Real API calls belong in a separate, manually-triggered
 > integration suite — not in `make test`.
 
@@ -64,21 +64,21 @@ This catches prompt regressions before they reach the LLM.
 
 ```ts
 // src/summarise.test.ts
-it("prompt includes the source text", () => {
-  const prompt = buildSummaryPrompt("my important text");
-  expect(prompt).toContain("my important text");
-});
+it('prompt includes the source text', () => {
+  const prompt = buildSummaryPrompt('my important text')
+  expect(prompt).toContain('my important text')
+})
 
-it("prompt requests JSON output", () => {
-  const prompt = buildSummaryPrompt("text");
-  expect(prompt).toMatch(/json|JSON/);
-});
+it('prompt requests JSON output', () => {
+  const prompt = buildSummaryPrompt('text')
+  expect(prompt).toMatch(/json|JSON/)
+})
 
-it("prompt includes the output schema", () => {
-  const prompt = buildSummaryPrompt("text");
-  expect(prompt).toContain("title");
-  expect(prompt).toContain("points");
-});
+it('prompt includes the output schema', () => {
+  const prompt = buildSummaryPrompt('text')
+  expect(prompt).toContain('title')
+  expect(prompt).toContain('points')
+})
 ```
 
 **Key insight:** If `buildSummaryPrompt` is a pure function (text in → string out), it's trivial
@@ -92,34 +92,31 @@ Parse every LLM response through a Zod schema before your code uses it.
 This makes response shape drift a catchable runtime error, not a silent bug.
 
 ```ts
-import { z } from "zod";
+import { z } from 'zod'
 
 const SummarySchema = z.object({
   title: z.string().min(1),
   points: z.array(z.string()).min(1).max(10),
-  sentiment: z.enum(["positive", "neutral", "negative"]).optional(),
-});
+  sentiment: z.enum(['positive', 'neutral', 'negative']).optional()
+})
 
-export type Summary = z.infer<typeof SummarySchema>;
+export type Summary = z.infer<typeof SummarySchema>
 
 async function parseSummary(response: APIResponse): Promise<Summary> {
-  const text = response.content[0].text;
-  const json = JSON.parse(text);
-  return SummarySchema.parse(json); // throws ZodError with clear message on bad shape
+  const text = response.content[0].text
+  const json = JSON.parse(text)
+  return SummarySchema.parse(json) // throws ZodError with clear message on bad shape
 }
 ```
 
 Test the schema directly:
-
 ```ts
-it("accepts a valid summary", () => {
-  expect(() =>
-    SummarySchema.parse({ title: "T", points: ["a"] }),
-  ).not.toThrow();
-});
-it("rejects a summary with no points", () => {
-  expect(() => SummarySchema.parse({ title: "T", points: [] })).toThrow();
-});
+it('accepts a valid summary', () => {
+  expect(() => SummarySchema.parse({ title: 'T', points: ['a'] })).not.toThrow()
+})
+it('rejects a summary with no points', () => {
+  expect(() => SummarySchema.parse({ title: 'T', points: [] })).toThrow()
+})
 ```
 
 ---
@@ -138,7 +135,6 @@ export async function summarise(text: string): Promise<Summary> { ... }
 ```
 
 Cost tiers:
-
 - `cheap` — < 1K tokens total, called infrequently
 - `moderate` — 1K-10K tokens, or called on a hot path
 - `expensive` — > 10K tokens, or called in loops / batch jobs
@@ -152,10 +148,8 @@ This is the file another AI tool (ChatGPT, Gemini, a future agent) reads to unde
 your LLM integration without reading source code.
 
 Template per call:
-
 ```md
 ### summarise()
-
 **File:** src/summarise.ts
 **Purpose:** Converts a long document into a structured summary with title and bullet points.
 **Input:** Raw text, max ~4000 words
@@ -176,14 +170,14 @@ Keep a separate suite that hits the real API, behind a guard:
 
 ```ts
 // tests/integration/summarise.real.test.ts
-const runRealTests = process.env.RUN_REAL_LLM_TESTS === "true";
+const runRealTests = process.env.RUN_REAL_LLM_TESTS === 'true'
 
-describe.skipIf(!runRealTests)("summarise — real API", () => {
-  it("returns a valid summary for a 500-word document", async () => {
-    const result = await summarise(fixture500words);
-    expect(SummarySchema.safeParse(result).success).toBe(true);
-  });
-});
+describe.skipIf(!runRealTests)('summarise — real API', () => {
+  it('returns a valid summary for a 500-word document', async () => {
+    const result = await summarise(fixture500words)
+    expect(SummarySchema.safeParse(result).success).toBe(true)
+  })
+})
 ```
 
 Run with: `RUN_REAL_LLM_TESTS=true npx vitest run tests/integration`

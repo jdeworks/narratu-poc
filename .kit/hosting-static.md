@@ -4,12 +4,12 @@ How to deploy static sites built with Vite (or any build tool that outputs to a 
 
 ## Platform options
 
-| Platform             | Best for                      | Free tier                  |
-| -------------------- | ----------------------------- | -------------------------- |
-| **GitHub Pages**     | Open source, portfolio sites  | Unlimited for public repos |
-| **Vercel**           | Next.js, preview deploys      | Generous (hobby tier)      |
-| **Netlify**          | Form handling, edge functions | 100 GB/month bandwidth     |
-| **Cloudflare Pages** | Global CDN, fast              | Unlimited bandwidth        |
+| Platform | Best for | Free tier |
+|----------|----------|-----------|
+| **GitHub Pages** | Open source, portfolio sites | Unlimited for public repos |
+| **Vercel** | Next.js, preview deploys | Generous (hobby tier) |
+| **Netlify** | Form handling, edge functions | 100 GB/month bandwidth |
+| **Cloudflare Pages** | Global CDN, fast | Unlimited bandwidth |
 
 All provide HTTPS automatically.
 
@@ -22,8 +22,8 @@ For Vite, set the base path if deploying to a repo subdirectory:
 ```javascript
 // vite.config.js
 export default defineConfig({
-  base: "/repo-name/", // only needed for repo sites, not user.github.io
-});
+  base: '/repo-name/',  // only needed for repo sites, not user.github.io
+})
 ```
 
 ### 2. Create the deploy workflow
@@ -106,6 +106,38 @@ Or drag-and-drop your `dist/` folder at app.netlify.com.
 
 Connect your GitHub repo at dash.cloudflare.com → Pages. Set build command to `npm run build`
 and output directory to `dist`.
+
+## Dev vs. production feature gating
+
+Use this pattern to detect dev environments and hide dev-only features on production (e.g. GitHub Pages):
+
+```typescript
+export const IS_DEV = typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" ||
+   window.location.hostname === "127.0.0.1" ||
+   window.location.hostname.endsWith(".trycloudflare.com"));
+```
+
+Mark providers or features with `devOnly: true` and filter them in the UI:
+
+```typescript
+const providers = allProviders.filter(p => IS_DEV || !p.devOnly);
+```
+
+This keeps debug tools, local-only TTS providers, mock APIs, etc. out of the production build
+without `#ifdef`-style conditionals scattered through the codebase.
+
+## Cloudflare tunnel for mobile testing
+
+When using Cloudflare tunnels (`cloudflared tunnel`) to test on mobile devices, Vite blocks
+external hostnames by default. Add this to `vite.config.ts`:
+
+```typescript
+preview: { allowedHosts: true },
+```
+
+This allows the tunnel hostname through during `vite preview`. For `vite dev`, use
+`server: { host: true }` as well.
 
 ## Verify
 
