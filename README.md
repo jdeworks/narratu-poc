@@ -19,7 +19,7 @@ Narratu transforms written stories into fully voiced audiobooks using AI. Each c
 - **AI-Optimized Audio Settings** — Per-segment gap timing, LUFS normalization, fade curves, and trailing artifact detection, all auto-tuned by AI analysis
 - **Background Music & Sound Effects** — AI-suggested atmospheric audio placed at narrative-appropriate moments
 - **MP3 Export** — Voiceline-only or full audiobook export with all mixer settings applied
-- **BYOK (Bring Your Own Key)** — Users provide their own API keys; nothing is stored server-side. Full transparency on costs and provider choice
+- **BYOK (Bring Your Own Key)** — In production mode, users provide their own API keys for full control over costs and provider choice. The demo includes pre-generated audio — no API key needed to explore
 - **Character Relationship Diagrams** — Auto-generated Mermaid flowcharts showing character connections and relationship types
 
 ### Demo: "The Open Window" by Saki
@@ -35,7 +35,7 @@ The live demo includes a complete audiobook of Saki's "The Open Window" with:
 
 Narratu demonstrates a viable path to an AI audiobook production tool that:
 
-1. **Runs entirely client-side** — No server costs for audio processing. Users bring their own API keys, making the marginal cost of each audiobook near-zero for the platform.
+1. **Lightweight architecture** — The PoC runs entirely client-side as a static site. The production tool will use a server for orchestration, but the heavy lifting (TTS, LLM) is offloaded to third-party APIs — keeping infrastructure costs low and scaling simple.
 
 2. **Solves a real production bottleneck** — Professional audiobook production costs $2,000–$10,000+ per title. Narratu targets 95% automation: AI handles analysis, voice matching, mixing, and optimization. Users confirm and fine-tune.
 
@@ -49,7 +49,7 @@ Narratu demonstrates a viable path to an AI audiobook production tool that:
 
 5. **Built for iteration** — The three-tier settings system (default → AI-optimized → user override) means every decision is visible and reversible. Users can trust the AI defaults or fine-tune anything.
 
-See the [For Investors page](https://jdeworks.github.io/narratu-poc/) in the live demo for more detail.
+See the [For Investors page](https://jdeworks.github.io/narratu-poc/#investors) in the live demo for more detail. (Navigate via the sidebar: Pages → For Investors)
 
 ## Lessons Learned — Building an Audiobook Engine with AI
 

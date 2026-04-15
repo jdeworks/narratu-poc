@@ -26,7 +26,15 @@ This is exported from the PoC demo page using the "Export Voiceline" option. It 
 
 ### Full Audiobook Export
 
-_Coming soon_ — The full audiobook export includes all mixer tracks (voices + music + SFX) with volume automation, loop regions, and fade envelopes applied. This will be added once the export pipeline is verified on the deployed demo.
+**[poc-export-the-open-window-full.mp3](poc-export-the-open-window-full.mp3)**
+
+Full mix export: all 4 mixer tracks combined — voices, background music, sound effects, and noise gaps. Exported from the PoC demo page using the "Export Audiobook" option.
+
+**What's included (in addition to the voiceline export):**
+- Background music with volume automation, loop regions, and fade envelopes
+- Sound effects placed at narrative-appropriate moments (AI-suggested timing)
+- All mixer track levels and settings applied
+- Full timeline rendering from the 4-track mixer
 
 ### Fully Optimized Version
 
