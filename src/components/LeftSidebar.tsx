@@ -65,6 +65,11 @@ export default function LeftSidebar({ onNavigate }: SidebarProps) {
             onClick={() => { setView("demo"); onNavigate(); }}
           />
           <NavItem
+            label="Listen"
+            active={view === "listen"}
+            onClick={() => { setView("listen"); onNavigate(); }}
+          />
+          <NavItem
             label="How it works"
             active={view === "how-it-works"}
             onClick={() => { setView("how-it-works"); onNavigate(); }}

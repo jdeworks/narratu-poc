@@ -7,6 +7,7 @@ import InvestorPage from "./components/InvestorPage";
 import SurveyPage from "./components/SurveyPage";
 import HowItWorksPage from "./components/HowItWorksPage";
 import DemoPage from "./components/DemoPage";
+import ListenPage from "./components/ListenPage";
 
 export default function App() {
   const view = useProjectStore((s) => s.view);
@@ -56,6 +57,7 @@ export default function App() {
 
           <main id="main-content" className="flex-1 overflow-auto">
             {view === "demo" && <DemoPage />}
+            {view === "listen" && <ListenPage />}
             {view === "how-it-works" && <HowItWorksPage />}
             {view === "investors" && <InvestorPage />}
             {view === "survey" && <SurveyPage />}

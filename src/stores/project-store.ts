@@ -6,7 +6,8 @@ export type AppView =
   | "investors"
   | "survey"
   | "how-it-works"
-  | "demo";
+  | "demo"
+  | "listen";
 
 export interface CharacterProfile {
   name: string;
