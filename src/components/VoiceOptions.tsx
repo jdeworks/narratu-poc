@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  playAudio,
+  playSimple,
   stopAudio,
   setDeEsser as setAudioDeEsser,
   setBrightness as setAudioBrightness,
@@ -339,7 +339,7 @@ function StoredVoiceRow({
       return;
     }
     if (audioUrl) {
-      playAudio(audioUrl, undefined, m.voice_id);
+      playSimple(audioUrl, undefined, undefined, m.voice_id);
     }
   }
 

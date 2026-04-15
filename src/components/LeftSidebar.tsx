@@ -1,36 +1,13 @@
-import { useEffect, useState } from "react";
 import { useProjectStore } from "../stores/project-store";
 import { useThemeStore } from "../stores/theme-store";
-import {
-  listProjects,
-  deleteProject,
-  type SavedProject,
-} from "../storage/project-db";
 
 interface SidebarProps {
   onNavigate: () => void;
 }
 
 export default function LeftSidebar({ onNavigate }: SidebarProps) {
-  const { projectId, view, reset, loadProject, setView } = useProjectStore();
+  const { view, reset, setView } = useProjectStore();
   const { theme, toggle } = useThemeStore();
-  const [projects, setProjects] = useState<SavedProject[]>([]);
-
-  useEffect(() => {
-    loadProjects();
-  }, [projectId]);
-
-  async function loadProjects() {
-    const all = await listProjects();
-    setProjects(all);
-  }
-
-  async function handleDelete(id: string, e: React.MouseEvent) {
-    e.stopPropagation();
-    await deleteProject(id);
-    if (projectId === id) reset();
-    await loadProjects();
-  }
 
   return (
     <aside className="flex h-full w-56 shrink-0 flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)]" role="navigation">
@@ -79,31 +56,7 @@ export default function LeftSidebar({ onNavigate }: SidebarProps) {
       </div>
 
       <div className="flex-1 overflow-auto p-3">
-        {/* New project */}
-        <button
-          onClick={() => { reset(); onNavigate(); }}
-          className="mb-3 flex w-full items-center gap-2 rounded-lg border border-dashed border-[var(--color-border)] px-3 py-3 text-sm text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
-        >
-          <span className="text-lg leading-none">+</span>
-          New Story
-        </button>
-
-        {/* Projects */}
-        {projects.length > 0 && (
-          <Section title="Projects">
-            {projects.map((p) => (
-              <ProjectItem
-                key={p.id}
-                project={p}
-                active={p.id === projectId}
-                onSelect={() => { loadProject(p); onNavigate(); }}
-                onDelete={(e) => handleDelete(p.id, e)}
-              />
-            ))}
-          </Section>
-        )}
-
-        {/* Links */}
+        {/* Pages */}
         <nav aria-label="Pages">
         <Section title="Pages">
           <NavItem
@@ -147,7 +100,6 @@ export default function LeftSidebar({ onNavigate }: SidebarProps) {
               .createInstance({ name: "narratu", storeName: "projects" })
               .clear();
             reset();
-            await loadProjects();
           }}
           className="mb-2 w-full rounded-md px-2 py-2.5 text-left text-xs text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-danger)]"
         >
@@ -175,50 +127,6 @@ function Section({
       </h3>
       <div className="space-y-0.5">{children}</div>
     </div>
-  );
-}
-
-function ProjectItem({
-  project,
-  active,
-  onSelect,
-  onDelete,
-}: {
-  project: SavedProject;
-  active: boolean;
-  onSelect: () => void;
-  onDelete: (e: React.MouseEvent) => void;
-}) {
-  const hasSegments = project.segments.length > 0;
-
-  return (
-    <button
-      onClick={onSelect}
-      className={`group flex w-full items-center gap-2 rounded-md px-2 py-3 text-left text-sm transition-colors ${
-        active
-          ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
-          : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)] hover:text-[var(--color-text)]"
-      }`}
-    >
-      <span className="text-xs">{hasSegments ? "📖" : "📝"}</span>
-      <span className="min-w-0 flex-1 truncate">{project.name}</span>
-      <button
-        type="button"
-        onClick={onDelete}
-        className="hidden shrink-0 rounded p-0.5 text-[var(--color-text-muted)] hover:bg-[var(--color-danger)]/10 hover:text-[var(--color-danger)] group-hover:block"
-      >
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path d="M18 6L6 18M6 6l12 12" />
-        </svg>
-      </button>
-    </button>
   );
 }
 

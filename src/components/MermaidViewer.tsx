@@ -7,18 +7,30 @@ interface Props {
   onClickNode?: (nodeId: string) => void;
 }
 
-mermaid.initialize({
-  startOnLoad: false,
-  theme: "neutral",
-  flowchart: {
-    useMaxWidth: true,
-    htmlLabels: true,
-    curve: "basis",
-  },
-  securityLevel: "loose",
-});
-
+let initialized = false;
 let renderCounter = 0;
+
+function ensureInitialized() {
+  if (initialized) return;
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: "neutral",
+    flowchart: {
+      useMaxWidth: true,
+      htmlLabels: true,
+      curve: "basis",
+    },
+    securityLevel: "loose",
+  });
+  initialized = true;
+}
+
+/** Sanitize mermaid code to avoid HTML label parsing issues (e.g. apostrophes) */
+function sanitizeCode(code: string): string {
+  return code.replace(/\["([^"]*?)'\s*/g, (match, before) =>
+    match.replace("'", "\u2019") // replace straight apostrophe with curly
+  );
+}
 
 /**
  * Extract the character node ID from a Mermaid SVG element's id.
@@ -83,8 +95,18 @@ export default function MermaidViewer({ code, onClickNode }: Props) {
 
     (async () => {
       try {
+        ensureInitialized();
+        const sanitized = sanitizeCode(code);
         const id = `mermaid-diagram-${++renderCounter}`;
-        const { svg } = await mermaid.render(id, code);
+        let svg: string;
+        try {
+          ({ svg } = await mermaid.render(id, sanitized));
+        } catch {
+          // Retry once with a fresh ID — mermaid can fail on cold start
+          await new Promise((r) => setTimeout(r, 100));
+          const retryId = `mermaid-diagram-${++renderCounter}`;
+          ({ svg } = await mermaid.render(retryId, sanitized));
+        }
         if (cancelled || !containerRef.current) return;
         containerRef.current.innerHTML = svg;
 
@@ -195,6 +217,7 @@ export default function MermaidViewer({ code, onClickNode }: Props) {
         });
       } catch (err) {
         if (!cancelled) {
+          console.error("[MermaidViewer] render failed:", err);
           setError(err instanceof Error ? err.message : "Render failed");
         }
       }

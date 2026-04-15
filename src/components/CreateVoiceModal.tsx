@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { playAudio, stopAudio } from "../utils/audio-player";
+import { playSimple, stopAudio } from "../utils/audio-player";
 import type { CharacterProfile } from "../stores/project-store";
 
 const API_BASE = "http://localhost:4001";
@@ -251,7 +251,7 @@ export default function CreateVoiceModal({ character, sampleText, voiceProfileHi
     }
     const url = previews[index]?.audio_url;
     if (!url) return;
-    playAudio(url, () => setPlayingPreview(null));
+    playSimple(url, () => setPlayingPreview(null));
     setPlayingPreview(index);
   }
 

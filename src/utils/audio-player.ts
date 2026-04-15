@@ -187,6 +187,56 @@ export function playAudio(
   return audio;
 }
 
+/**
+ * Simple playback without Web Audio API chain — no CORS requirement.
+ * Use for voice previews where audio processing isn't needed.
+ * Returns a promise that resolves on success, rejects on error.
+ */
+export function playSimple(
+  url: string,
+  onEnd?: () => void,
+  onError?: () => void,
+  id?: string,
+): HTMLAudioElement {
+  stopAudio();
+
+  const audio = new Audio(url);
+  // Intentionally NOT setting crossOrigin — allows cross-origin playback without CORS
+  audio.playbackRate = currentSpeed;
+  current = audio;
+  onStopCallback = onEnd ?? null;
+  currentPlayingId = id ?? url;
+  notifyListeners();
+
+  audio.onended = () => {
+    currentPlayingId = null;
+    current = null;
+    onStopCallback = null;
+    notifyListeners();
+    onEnd?.();
+  };
+
+  audio.onerror = () => {
+    currentPlayingId = null;
+    current = null;
+    onStopCallback = null;
+    notifyListeners();
+    onError?.();
+    onEnd?.();
+  };
+
+  audio.play().catch(() => {
+    currentPlayingId = null;
+    current = null;
+    onStopCallback = null;
+    notifyListeners();
+    onError?.();
+    onEnd?.();
+  });
+
+  return audio;
+}
+
 export function setSpeed(speed: number): void {
   currentSpeed = speed;
   if (current) current.playbackRate = speed;

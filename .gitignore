@@ -14,6 +14,9 @@ Thumbs.db
 # Dev-only server (never deploy)
 server/
 
+# Research docs (not part of the product)
+research/
+
 # Dev scratch files (voice data dumps, one-off scripts)
 scripts/*.json
 scripts/demo-story.txt

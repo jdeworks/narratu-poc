@@ -66,6 +66,9 @@ interface SegmentSettingsState {
   /** Clear a user override (falls back to analyzed or default) */
   clearAudioOverride: (segmentId: string, key: keyof SegmentAudioSettings) => void;
 
+  /** Clear an analyzed value back to default */
+  clearToDefault: (segmentId: string, key: keyof SegmentAudioSettings) => void;
+
   /** Set a user override on content (emotion/inflection/voiceText) */
   setContentOverride: (segmentId: string, key: "emotion" | "inflection" | "voiceText", value: string) => void;
 
@@ -168,6 +171,23 @@ export const useSegmentSettingsStore = create<SegmentSettingsState>((set, get) =
           [segmentId]: {
             ...seg,
             audio: { ...seg.audio, [key]: clearToAnalyzedOrDefault(seg.audio[key]) },
+          },
+        },
+      };
+    });
+  },
+
+  clearToDefault(segmentId, key) {
+    set((state) => {
+      const seg = state.settings[segmentId];
+      if (!seg) return state;
+      const tv = seg.audio[key];
+      return {
+        settings: {
+          ...state.settings,
+          [segmentId]: {
+            ...seg,
+            audio: { ...seg.audio, [key]: { ...tv, value: tv.defaultValue, origin: "default" as const } },
           },
         },
       };

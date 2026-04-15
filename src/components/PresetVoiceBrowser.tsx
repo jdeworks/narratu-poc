@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { playAudio, stopAudio, onPlayingChange, getPlayingId } from "../utils/audio-player";
+import { playSimple, stopAudio, onPlayingChange, getPlayingId } from "../utils/audio-player";
 import { useVoiceAssignmentStore } from "../stores/voice-assignment-store";
 import { useProjectStore, type StoredVoiceMatch } from "../stores/project-store";
 import { useVoiceSamplesStore } from "../stores/voice-samples-store";
@@ -54,13 +54,20 @@ export default function PresetVoiceBrowser({
       })
     : voices;
 
+  const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
+
   function handlePlay(voiceId: string, previewUrl: string) {
     if (playingId === voiceId) {
       stopAudio();
       return;
     }
     const v3Sample = voiceSamples[voiceId]?.mp3;
-    playAudio(v3Sample || previewUrl, undefined, voiceId);
+    playSimple(
+      v3Sample || previewUrl,
+      undefined,
+      () => setFailedIds((prev) => new Set(prev).add(voiceId)),
+      voiceId,
+    );
   }
 
   function handleVoiceIdSubmit() {
@@ -163,26 +170,36 @@ export default function PresetVoiceBrowser({
                   {!search && (
                     <span className="text-xs font-medium text-[var(--color-text-muted)]">#{i + 1}</span>
                   )}
-                  <button
-                    onClick={() => handlePlay(sv.voice.voice_id, sv.voice.preview_url)}
-                    className={`cursor-pointer rounded-full p-1.5 transition-colors ${
-                      playingId === sv.voice.voice_id
-                        ? "bg-[var(--color-primary)] text-[var(--color-primary-text)]"
-                        : "bg-[var(--color-bg)] text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
-                    }`}
-                    title={playingId === sv.voice.voice_id ? "Stop" : "Play preview"}
-                  >
-                    {playingId === sv.voice.voice_id ? (
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                        <rect x="6" y="4" width="4" height="16" />
-                        <rect x="14" y="4" width="4" height="16" />
+                  {failedIds.has(sv.voice.voice_id) ? (
+                    <span className="rounded-full p-1.5 text-[var(--color-text-muted)]" title="Preview unavailable">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="1" y1="1" x2="23" y2="23" /><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
+                        <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2c0 .76-.12 1.5-.34 2.18" /><line x1="12" y1="19" x2="12" y2="23" />
+                        <line x1="8" y1="23" x2="16" y2="23" />
                       </svg>
-                    ) : (
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                        <polygon points="5,3 19,12 5,21" />
-                      </svg>
-                    )}
-                  </button>
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => handlePlay(sv.voice.voice_id, sv.voice.preview_url)}
+                      className={`cursor-pointer rounded-full p-1.5 transition-colors ${
+                        playingId === sv.voice.voice_id
+                          ? "bg-[var(--color-primary)] text-[var(--color-primary-text)]"
+                          : "bg-[var(--color-bg)] text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                      }`}
+                      title={playingId === sv.voice.voice_id ? "Stop" : "Play preview"}
+                    >
+                      {playingId === sv.voice.voice_id ? (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <rect x="6" y="4" width="4" height="16" />
+                          <rect x="14" y="4" width="4" height="16" />
+                        </svg>
+                      ) : (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <polygon points="5,3 19,12 5,21" />
+                        </svg>
+                      )}
+                    </button>
+                  )}
                 </div>
 
                 {/* Voice info */}

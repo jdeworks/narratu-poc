@@ -3,11 +3,6 @@ import { saveProject, type SavedProject } from "../storage/project-db";
 import { registerSpeakers } from "../utils/speaker-colors";
 
 export type AppView =
-  | "input"
-  | "processing"
-  | "editor"
-  | "generating"
-  | "playback"
   | "investors"
   | "survey"
   | "how-it-works"
@@ -146,7 +141,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     set({
       projectId: project.id,
       projectName: project.name,
-      view: project.segments.length > 0 ? "editor" : "input",
+      view: "demo",
       storyText: project.storyText,
       segments: project.segments,
       characters: project.characters,

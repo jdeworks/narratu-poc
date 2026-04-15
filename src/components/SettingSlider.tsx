@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import type { TrackedValue, SettingOrigin } from "../types/segment-settings";
 
 const ORIGIN_LABELS: Record<SettingOrigin, string> = {
@@ -24,6 +25,20 @@ export default function SettingSlider({ label, description, tracked: tv, min, ma
   const isModified = tv.origin !== "default";
   const originColor = `var(--color-origin-${tv.origin})`;
   const [editing, setEditing] = useState(false);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number; flip: boolean } | null>(null);
+  const infoRef = useRef<SVGSVGElement>(null);
+
+  const showTooltip = useCallback(() => {
+    if (!infoRef.current) return;
+    const rect = infoRef.current.getBoundingClientRect();
+    const flip = rect.top < 120; // flip below if too close to top
+    setTooltipPos({
+      x: rect.left + rect.width / 2,
+      y: flip ? rect.bottom + 6 : rect.top - 6,
+      flip,
+    });
+  }, []);
+  const hideTooltip = useCallback(() => setTooltipPos(null), []);
 
   function commitEdit(raw: string) {
     const num = parseFloat(raw);
@@ -38,13 +53,24 @@ export default function SettingSlider({ label, description, tracked: tv, min, ma
         {label}
         {description && (
           <span className="relative inline-flex">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-              className="cursor-help text-[var(--color-text-muted)]/50 hover:text-[var(--color-text-secondary)] peer">
+            <svg ref={infoRef} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+              className="cursor-help text-[var(--color-text-muted)]/50 hover:text-[var(--color-text-secondary)]"
+              onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
               <circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" />
             </svg>
-            <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1.5 hidden w-52 -translate-x-1/2 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-2.5 text-xs leading-relaxed text-[var(--color-text)] shadow-lg peer-hover:block">
-              {description}
-            </span>
+            {tooltipPos && createPortal(
+              <div
+                className="pointer-events-none fixed z-[101] w-52 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-2.5 text-xs leading-relaxed text-[var(--color-text)] shadow-lg"
+                style={{
+                  left: tooltipPos.x,
+                  top: tooltipPos.y,
+                  transform: `translateX(-50%) ${tooltipPos.flip ? "" : "translateY(-100%)"}`,
+                }}
+              >
+                {description}
+              </div>,
+              document.body,
+            )}
           </span>
         )}
       </span>

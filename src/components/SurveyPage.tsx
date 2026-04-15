@@ -99,7 +99,7 @@ export default function SurveyPage() {
         </p>
         <div className="flex justify-center gap-3">
           <button
-            onClick={() => setView("input")}
+            onClick={() => setView("demo")}
             className="rounded-lg bg-[var(--color-primary)] px-6 py-2 font-medium text-[var(--color-primary-text)] hover:bg-[var(--color-primary-hover)]"
           >
             Try the Demo

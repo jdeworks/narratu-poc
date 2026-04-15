@@ -3,30 +3,15 @@ import { useProjectStore } from "./stores/project-store";
 import { useThemeStore } from "./stores/theme-store";
 import ErrorBoundary from "./components/ErrorBoundary";
 import LeftSidebar from "./components/LeftSidebar";
-import StoryInput from "./components/StoryInput";
-import ProcessingView from "./components/ProcessingView";
-import EditorView from "./components/EditorView";
-import GeneratingView from "./components/GeneratingView";
-import PlaybackView from "./components/PlaybackView";
 import InvestorPage from "./components/InvestorPage";
 import SurveyPage from "./components/SurveyPage";
 import HowItWorksPage from "./components/HowItWorksPage";
 import DemoPage from "./components/DemoPage";
-import type { GeneratedSegment } from "./engine/audio-generator";
 
 export default function App() {
   const view = useProjectStore((s) => s.view);
-  const setView = useProjectStore((s) => s.setView);
   const theme = useThemeStore((s) => s.theme);
-  const [generated, setGenerated] = useState<GeneratedSegment[]>([]);
-  const [fullAudio, setFullAudio] = useState<Blob | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  function handleGenerationComplete(gen: GeneratedSegment[], audio: Blob) {
-    setGenerated(gen);
-    setFullAudio(audio);
-    setView("playback");
-  }
 
   return (
     <ErrorBoundary>
@@ -70,15 +55,6 @@ export default function App() {
           </div>
 
           <main id="main-content" className="flex-1 overflow-auto">
-            {view === "input" && <StoryInput />}
-            {view === "processing" && <ProcessingView />}
-            {view === "editor" && <EditorView />}
-            {view === "generating" && (
-              <GeneratingView onComplete={handleGenerationComplete} />
-            )}
-            {view === "playback" && fullAudio && (
-              <PlaybackView generated={generated} fullAudio={fullAudio} />
-            )}
             {view === "demo" && <DemoPage />}
             {view === "how-it-works" && <HowItWorksPage />}
             {view === "investors" && <InvestorPage />}
