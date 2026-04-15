@@ -153,7 +153,7 @@ export default function SoundEditModal({ target, onSave, onClose, disabled }: Pr
 
           {disabled && (
             <div className="rounded-lg border border-dashed border-[var(--color-border)] bg-[var(--color-panel-bg)] p-3 text-xs text-[var(--color-text-muted)]">
-              Enter your ElevenLabs API key in Settings to enable customization and generation.
+              Editing and generation available with an ElevenLabs API key. Pre-generated sounds are included in the demo.
             </div>
           )}
         </div>

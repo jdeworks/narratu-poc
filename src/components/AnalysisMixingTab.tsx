@@ -104,7 +104,7 @@ export default function AnalysisMixingTab({ segments, characters, allSpeakers, o
       {!hasLlm && !analyzing && heuristicSugs.length > 0 && (
         <>
           <div className="rounded-lg bg-[var(--color-panel-bg)] p-2 text-xs text-[var(--color-text-muted)]">
-            Showing heuristic analysis (LLM not available). Run with dev:api for LLM-powered results.
+            Showing heuristic analysis. LLM-powered analysis available with an API key.
           </div>
           <Section title="Heuristic Suggestions" count={heuristicSugs.length}>
             {heuristicSugs.map((s) => (
@@ -116,8 +116,8 @@ export default function AnalysisMixingTab({ segments, characters, allSpeakers, o
 
       <div className="rounded-lg bg-[var(--color-panel-bg)] p-3">
         <p className="text-sm text-[var(--color-text-muted)]">
-          {hasLlm ? "LLM analysis complete. Open in Sidebar to generate audio and add to mixer."
-            : "Connect to dev:api or enter an API key for LLM-powered mixing analysis."}
+          {hasLlm ? "LLM analysis complete. Open the Sound & Music sidebar to generate audio and add to mixer."
+            : "LLM-powered mixing analysis available with an API key. Heuristic analysis is shown above."}
         </p>
       </div>
     </div>
