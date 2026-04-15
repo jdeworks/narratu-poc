@@ -98,7 +98,6 @@ function TrackPlayer({ track }: { track: Track }) {
   const durationRef = useRef(0);
 
   const [playing, setPlaying] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [timeDisplay, setTimeDisplay] = useState("0:00");
   const [durationDisplay, setDurationDisplay] = useState("--:--");
   const [showDetails, setShowDetails] = useState(false);
@@ -114,8 +113,7 @@ function TrackPlayer({ track }: { track: Track }) {
   // Draw waveform — called from RAF, no React state dependency
   function drawWaveform() {
     const canvas = canvasRef.current;
-    const peaks = peaksRef.current;
-    if (!canvas || peaks.length === 0) return;
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -129,24 +127,42 @@ function TrackPlayer({ track }: { track: Track }) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
 
-    const mid = h / 2;
-    const barW = w / peaks.length;
-    const progressFrac = durationRef.current > 0 ? timeRef.current / durationRef.current : 0;
+    const dur = durationRef.current || (audioRef.current?.duration || 0);
+    const progressFrac = dur > 0 ? timeRef.current / dur : 0;
 
     const styles = getComputedStyle(document.documentElement);
     const primaryColor = styles.getPropertyValue("--color-primary").trim();
     const mutedColor = styles.getPropertyValue("--color-text-muted").trim();
+    const peaks = peaksRef.current;
 
-    for (let i = 0; i < peaks.length; i++) {
-      const x = i * barW;
-      const barH = peaks[i] * mid * 0.9;
-      const frac = i / peaks.length;
-      ctx.fillStyle = frac < progressFrac ? primaryColor : mutedColor;
-      ctx.globalAlpha = frac < progressFrac ? 0.8 : 0.2;
-      ctx.fillRect(x, mid - barH, Math.max(barW - 0.5, 0.5), barH * 2);
+    if (peaks.length > 0) {
+      // Full waveform
+      const mid = h / 2;
+      const barW = w / peaks.length;
+      for (let i = 0; i < peaks.length; i++) {
+        const x = i * barW;
+        const barH = peaks[i] * mid * 0.9;
+        const frac = i / peaks.length;
+        ctx.fillStyle = frac < progressFrac ? primaryColor : mutedColor;
+        ctx.globalAlpha = frac < progressFrac ? 0.8 : 0.2;
+        ctx.fillRect(x, mid - barH, Math.max(barW - 0.5, 0.5), barH * 2);
+      }
+    } else {
+      // Simple progress bar while peaks load
+      const barH = h * 0.15;
+      const y = (h - barH) / 2;
+      ctx.fillStyle = mutedColor;
+      ctx.globalAlpha = 0.15;
+      ctx.fillRect(0, y, w, barH);
+      if (progressFrac > 0) {
+        ctx.fillStyle = primaryColor;
+        ctx.globalAlpha = 0.5;
+        ctx.fillRect(0, y, w * progressFrac, barH);
+      }
     }
     ctx.globalAlpha = 1;
 
+    // Playhead
     if (progressFrac > 0) {
       ctx.strokeStyle = primaryColor;
       ctx.lineWidth = 2;
@@ -157,19 +173,43 @@ function TrackPlayer({ track }: { track: Track }) {
     }
   }
 
-  // Animation loop — uses refs, only updates display text periodically
+  // Animation loop
   function tick() {
     if (audioRef.current && !audioRef.current.paused) {
       timeRef.current = audioRef.current.currentTime;
       drawWaveform();
-      // Update time display ~4x/sec to avoid excessive re-renders
       const newDisplay = fmt(timeRef.current);
       setTimeDisplay((prev) => prev === newDisplay ? prev : newDisplay);
       animRef.current = requestAnimationFrame(tick);
     }
   }
 
-  // Load peaks
+  // Create audio element immediately (streams — no decode wait)
+  useEffect(() => {
+    const audio = new Audio(url);
+    audio.preload = "metadata";
+    audioRef.current = audio;
+
+    audio.onloadedmetadata = () => {
+      durationRef.current = audio.duration;
+      setDurationDisplay(fmt(audio.duration));
+    };
+    audio.onended = () => {
+      setPlaying(false);
+      timeRef.current = 0;
+      setTimeDisplay("0:00");
+      drawWaveform();
+    };
+
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      audio.pause();
+      audio.removeAttribute("src");
+      audio.load();
+    };
+  }, [url]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load peaks in background (purely for visualization)
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -182,71 +222,42 @@ function TrackPlayer({ track }: { track: Track }) {
         peaksRef.current = computePeaks(decoded.getChannelData(0), 800);
         durationRef.current = decoded.duration;
         setDurationDisplay(fmt(decoded.duration));
-        setLoading(false);
         drawWaveform();
         await ctx.close();
       } catch {
-        if (!cancelled) setLoading(false);
+        /* peaks are optional — player still works without them */
       }
     })();
     return () => { cancelled = true; };
   }, [url]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function togglePlay() {
-    if (!audioRef.current) {
-      const audio = new Audio(url);
-      audioRef.current = audio;
-      audio.onended = () => {
-        setPlaying(false);
-        timeRef.current = 0;
-        setTimeDisplay("0:00");
-        drawWaveform();
-      };
-    }
-    if (audioRef.current.paused) {
-      audioRef.current.play().then(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.paused) {
+      audio.play().then(() => {
         setPlaying(true);
         animRef.current = requestAnimationFrame(tick);
       }).catch(() => {});
     } else {
-      audioRef.current.pause();
+      audio.pause();
       setPlaying(false);
     }
   }
 
   function seek(e: React.MouseEvent<HTMLCanvasElement>) {
-    const dur = durationRef.current;
+    const audio = audioRef.current;
+    const dur = durationRef.current || (audio?.duration || 0);
     if (!dur) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const newTime = frac * dur;
 
-    if (!audioRef.current) {
-      audioRef.current = new Audio(url);
-      audioRef.current.onended = () => {
-        setPlaying(false);
-        timeRef.current = 0;
-        setTimeDisplay("0:00");
-        drawWaveform();
-      };
-    }
-    audioRef.current.currentTime = newTime;
+    if (audio) audio.currentTime = newTime;
     timeRef.current = newTime;
     setTimeDisplay(fmt(newTime));
     drawWaveform();
   }
-
-  // Cleanup
-  useEffect(() => {
-    return () => {
-      cancelAnimationFrame(animRef.current);
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.removeAttribute("src");
-        audioRef.current.load();
-      }
-    };
-  }, []);
 
   return (
     <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
@@ -269,16 +280,13 @@ function TrackPlayer({ track }: { track: Track }) {
         <div className="flex items-center gap-3">
           <button
             onClick={togglePlay}
-            disabled={loading}
             className={`shrink-0 rounded-full p-2.5 transition-colors ${
               playing
                 ? "bg-[var(--color-primary)] text-[var(--color-primary-text)]"
                 : "bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
-            } disabled:opacity-40`}
+            }`}
           >
-            {loading ? (
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            ) : playing ? (
+            {playing ? (
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" />
               </svg>
