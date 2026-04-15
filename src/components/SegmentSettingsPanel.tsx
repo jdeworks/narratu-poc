@@ -19,7 +19,6 @@ export default function SegmentSettingsPanel({ segmentId, audioDuration, readOnl
   const settings = useSegmentSettingsStore((s) => s.settings[segmentId]);
   const setOverride = useSegmentSettingsStore((s) => s.setAudioOverride);
   const clearOverride = useSegmentSettingsStore((s) => s.clearAudioOverride);
-  const clearToDefault = useSegmentSettingsStore((s) => s.clearToDefault);
 
   if (!settings) {
     return (
@@ -31,21 +30,18 @@ export default function SegmentSettingsPanel({ segmentId, audioDuration, readOnl
 
   const { audio } = settings;
   const overrideCount = Object.values(audio).filter((tv) => tv.origin !== "default").length;
-  const hasUserOverrides = Object.values(audio).some((tv) => tv.origin === "user");
-  const hasAnalyzedValues = Object.values(audio).some((tv) => tv.origin === "analyzed");
+  const canReset = Object.values(audio).some((tv) => tv.origin === "user" || (tv.origin === "default" && tv.analyzedValue !== undefined));
 
-  function resetAllToAnalyzed() {
+  /** Reset all to AI optimized values where available, otherwise keep as-is */
+  function resetAllToOptimized() {
     for (const key of Object.keys(audio) as (keyof SegmentAudioSettings)[]) {
-      if (audio[key].origin === "user") {
+      const tv = audio[key];
+      if (tv.origin === "user") {
+        // User override → fall back to analyzed or default
         clearOverride(segmentId, key);
-      }
-    }
-  }
-
-  function resetAllToDefaults() {
-    for (const key of Object.keys(audio) as (keyof SegmentAudioSettings)[]) {
-      if (audio[key].origin !== "default") {
-        clearToDefault(segmentId, key);
+      } else if (tv.origin === "default" && tv.analyzedValue !== undefined) {
+        // At default but AI value exists → apply it
+        setOverride(segmentId, key, tv.analyzedValue);
       }
     }
   }
@@ -68,23 +64,12 @@ export default function SegmentSettingsPanel({ segmentId, audioDuration, readOnl
             {overrideCount} optimized
           </span>
         )}
-        {/* Reset all — aligned with the per-row reset column (w-5) */}
-        {hasUserOverrides && !readOnly ? (
+        {/* Reset all to AI optimized — visible when any non-optimized values exist */}
+        {canReset && !readOnly ? (
           <button
-            onClick={resetAllToAnalyzed}
+            onClick={resetAllToOptimized}
             className="w-5 shrink-0 text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
             title="Reset all to AI optimized"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-              <path d="M3 3v5h5" />
-            </svg>
-          </button>
-        ) : hasAnalyzedValues && !readOnly ? (
-          <button
-            onClick={resetAllToDefaults}
-            className="w-5 shrink-0 text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
-            title="Reset all to defaults"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />

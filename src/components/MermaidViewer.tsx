@@ -25,10 +25,11 @@ function ensureInitialized() {
   initialized = true;
 }
 
-/** Sanitize mermaid code to avoid HTML label parsing issues (e.g. apostrophes) */
+/** Sanitize mermaid code to avoid HTML label parsing issues (e.g. apostrophes inside quoted labels) */
 function sanitizeCode(code: string): string {
-  return code.replace(/\["([^"]*?)'\s*/g, (match, before) =>
-    match.replace("'", "\u2019") // replace straight apostrophe with curly
+  // Replace apostrophes inside ["..."] node labels with curly quotes
+  return code.replace(/\["([^"]*)"\]/g, (_match, label: string) =>
+    `["${label.replace(/'/g, "\u2019")}"]`
   );
 }
 
