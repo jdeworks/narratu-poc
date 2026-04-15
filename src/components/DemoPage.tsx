@@ -138,8 +138,11 @@ export default function DemoPage() {
     );
   }
 
+  const mixerLoading = useMixerStore((s) => s.loading);
+  const mixerSegmentCount = useMixerStore((s) => s.segments.length);
   const allSpeakers = characters.map((c) => c.name);
   const hasAudio = manifest.audioSegments.length > 0;
+  const exportReady = hasAudio && !mixerLoading && mixerSegmentCount >= segments.length;
 
   return (
     <div className="flex h-full">
@@ -235,7 +238,8 @@ export default function DemoPage() {
               {hasAudio ? "Preview Segments" : "Preview (generate audio first)"}
             </button>
             <ExportDropdown
-              disabled={!hasAudio || !!exportProgress}
+              disabled={!exportReady || !!exportProgress}
+              loading={hasAudio && !exportReady}
               exporting={exportProgress}
               onExportVoiceline={() => {
                 if (!manifest || !hasAudio) return;
@@ -472,8 +476,9 @@ function importMixerExport() {
   return import("../utils/mixer-export");
 }
 
-function ExportDropdown({ disabled, exporting, onExportVoiceline, onExportFull }: {
+function ExportDropdown({ disabled, loading, exporting, onExportVoiceline, onExportFull }: {
   disabled: boolean;
+  loading?: boolean;
   exporting: ExportProgress | null;
   onExportVoiceline: () => void;
   onExportFull: () => void;
@@ -504,13 +509,19 @@ function ExportDropdown({ disabled, exporting, onExportVoiceline, onExportFull }
             : "cursor-not-allowed border border-dashed border-[var(--color-border)] text-[var(--color-text-muted)]"
         }`}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
-        </svg>
-        Export
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="ml-1">
-          <path d="M6 9l6 6 6-6" />
-        </svg>
+        {loading ? (
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--color-border)] border-t-[var(--color-primary)]" />
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+        )}
+        {loading ? "Loading audio..." : "Export"}
+        {!loading && (
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="ml-1">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        )}
       </button>
       {open && (
         <>
