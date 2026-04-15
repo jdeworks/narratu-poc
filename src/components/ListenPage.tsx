@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createAudioContext, safeDecode } from "../utils/audio-context";
 import { computePeaks } from "../utils/peak-utils";
 
@@ -9,7 +9,7 @@ interface Track {
   id: string;
   title: string;
   subtitle: string;
-  description: string;
+  details: string[];
   file: string;
   badge: string;
   badgeColor: string;
@@ -19,19 +19,29 @@ const TRACKS: Track[] = [
   {
     id: "voiceline",
     title: "Voiceline Export",
-    subtitle: "Voices only — 7 AI characters, no music or SFX",
-    description:
-      "All 63 voiced segments with AI-optimized gap timing, LUFS normalization, fade curves, and trailing artifact trimming. This is the raw voiceline output — what the AI produces before any background audio is layered in.",
+    subtitle: "7 AI characters, voices only",
+    details: [
+      "63 voiced segments with distinct character voices",
+      "AI-optimized gap timing based on speaker transitions",
+      "LUFS normalization for consistent loudness",
+      "Fade curves and trailing artifact trimming",
+      "No background music or sound effects",
+    ],
     file: "demo/exports/poc-export-the-open-window-voiceline.mp3",
     badge: "Voices",
     badgeColor: "var(--color-origin-analyzed)",
   },
   {
     id: "full",
-    title: "Full Audiobook Export",
-    subtitle: "Complete mix — voices, music, sound effects",
-    description:
-      "The full 4-track mix from the audio mixer: voiced segments plus AI-suggested background music and sound effects, with volume automation, loop regions, and fade envelopes applied.",
+    title: "Full Audiobook",
+    subtitle: "Voices + music + sound effects",
+    details: [
+      "Complete 4-track mix from the audio mixer",
+      "AI-suggested background music with fade envelopes",
+      "Sound effects placed at narrative moments",
+      "Volume automation and loop regions applied",
+      "All mixer settings baked into the export",
+    ],
     file: "demo/exports/poc-export-the-open-window-full.mp3",
     badge: "Full Mix",
     badgeColor: "var(--color-primary)",
@@ -44,13 +54,13 @@ export default function ListenPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[var(--color-text)]">Listen</h1>
         <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-          Exported audiobooks from the demo — "The Open Window" by Saki
+          "The Open Window" by Saki — generated entirely by AI
         </p>
       </div>
 
       <div className="mb-6 rounded-lg border border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] px-5 py-3 text-sm text-[var(--color-text-secondary)]">
         <strong className="text-[var(--color-warning)]">PoC Exports</strong>{" "}
-        These are exported directly from the demo page using AI-optimized defaults. The production tool adds master bus processing, per-character EQ, and dynamic range optimization.
+        Exported from the demo using AI-optimized defaults. The production tool adds master bus processing, per-character EQ, and dynamic range optimization.
       </div>
 
       <div className="space-y-6">
@@ -83,70 +93,28 @@ function TrackPlayer({ track }: { track: Track }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animRef = useRef<number>(0);
-  const [peaks, setPeaks] = useState<number[]>([]);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
+  const peaksRef = useRef<number[]>([]);
+  const timeRef = useRef(0);
+  const durationRef = useRef(0);
+
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [timeDisplay, setTimeDisplay] = useState("0:00");
+  const [durationDisplay, setDurationDisplay] = useState("--:--");
+  const [showDetails, setShowDetails] = useState(false);
+
   const url = BASE + track.file;
 
-  // Load peaks
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(url);
-        const buf = await res.arrayBuffer();
-        const ctx = createAudioContext();
-        const decoded = await safeDecode(ctx, buf);
-        if (cancelled) { await ctx.close(); return; }
-        const p = computePeaks(decoded.getChannelData(0), 800);
-        setPeaks(p);
-        setDuration(decoded.duration);
-        await ctx.close();
-      } catch {
-        /* ignore load errors */
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [url]);
+  const fmt = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${String(sec).padStart(2, "0")}`;
+  };
 
-  // Animation loop for playback progress
-  const tick = useCallback(() => {
-    if (audioRef.current && !audioRef.current.paused) {
-      setCurrentTime(audioRef.current.currentTime);
-      animRef.current = requestAnimationFrame(tick);
-    }
-  }, []);
-
-  function togglePlay() {
-    if (!audioRef.current) {
-      const audio = new Audio(url);
-      audioRef.current = audio;
-      audio.onended = () => { setPlaying(false); setCurrentTime(0); };
-      audio.onpause = () => setPlaying(false);
-      audio.onplay = () => { setPlaying(true); animRef.current = requestAnimationFrame(tick); };
-    }
-    if (audioRef.current.paused) {
-      audioRef.current.play();
-    } else {
-      audioRef.current.pause();
-    }
-  }
-
-  function seek(e: React.MouseEvent<HTMLCanvasElement>) {
-    if (!audioRef.current || !duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    audioRef.current.currentTime = frac * duration;
-    setCurrentTime(frac * duration);
-  }
-
-  // Draw waveform
-  useEffect(() => {
+  // Draw waveform — called from RAF, no React state dependency
+  function drawWaveform() {
     const canvas = canvasRef.current;
+    const peaks = peaksRef.current;
     if (!canvas || peaks.length === 0) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -154,14 +122,16 @@ function TrackPlayer({ track }: { track: Track }) {
     const dpr = window.devicePixelRatio || 1;
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    ctx.scale(dpr, dpr);
+    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
 
     const mid = h / 2;
     const barW = w / peaks.length;
-    const progressFrac = duration > 0 ? currentTime / duration : 0;
+    const progressFrac = durationRef.current > 0 ? timeRef.current / durationRef.current : 0;
 
     const styles = getComputedStyle(document.documentElement);
     const primaryColor = styles.getPropertyValue("--color-primary").trim();
@@ -177,7 +147,6 @@ function TrackPlayer({ track }: { track: Track }) {
     }
     ctx.globalAlpha = 1;
 
-    // Playhead
     if (progressFrac > 0) {
       ctx.strokeStyle = primaryColor;
       ctx.lineWidth = 2;
@@ -186,7 +155,86 @@ function TrackPlayer({ track }: { track: Track }) {
       ctx.lineTo(progressFrac * w, h);
       ctx.stroke();
     }
-  }, [peaks, currentTime, duration]);
+  }
+
+  // Animation loop — uses refs, only updates display text periodically
+  function tick() {
+    if (audioRef.current && !audioRef.current.paused) {
+      timeRef.current = audioRef.current.currentTime;
+      drawWaveform();
+      // Update time display ~4x/sec to avoid excessive re-renders
+      const newDisplay = fmt(timeRef.current);
+      setTimeDisplay((prev) => prev === newDisplay ? prev : newDisplay);
+      animRef.current = requestAnimationFrame(tick);
+    }
+  }
+
+  // Load peaks
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(url);
+        const buf = await res.arrayBuffer();
+        const ctx = createAudioContext();
+        const decoded = await safeDecode(ctx, buf);
+        if (cancelled) { await ctx.close(); return; }
+        peaksRef.current = computePeaks(decoded.getChannelData(0), 800);
+        durationRef.current = decoded.duration;
+        setDurationDisplay(fmt(decoded.duration));
+        setLoading(false);
+        drawWaveform();
+        await ctx.close();
+      } catch {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [url]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function togglePlay() {
+    if (!audioRef.current) {
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => {
+        setPlaying(false);
+        timeRef.current = 0;
+        setTimeDisplay("0:00");
+        drawWaveform();
+      };
+    }
+    if (audioRef.current.paused) {
+      audioRef.current.play().then(() => {
+        setPlaying(true);
+        animRef.current = requestAnimationFrame(tick);
+      }).catch(() => {});
+    } else {
+      audioRef.current.pause();
+      setPlaying(false);
+    }
+  }
+
+  function seek(e: React.MouseEvent<HTMLCanvasElement>) {
+    const dur = durationRef.current;
+    if (!dur) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const newTime = frac * dur;
+
+    if (!audioRef.current) {
+      audioRef.current = new Audio(url);
+      audioRef.current.onended = () => {
+        setPlaying(false);
+        timeRef.current = 0;
+        setTimeDisplay("0:00");
+        drawWaveform();
+      };
+    }
+    audioRef.current.currentTime = newTime;
+    timeRef.current = newTime;
+    setTimeDisplay(fmt(newTime));
+    drawWaveform();
+  }
 
   // Cleanup
   useEffect(() => {
@@ -200,15 +248,9 @@ function TrackPlayer({ track }: { track: Track }) {
     };
   }, []);
 
-  const fmt = (s: number) => {
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s % 60);
-    return `${m}:${String(sec).padStart(2, "0")}`;
-  };
-
   return (
     <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
-      {/* Header */}
+      {/* Header — title, badge, subtitle */}
       <div className="px-5 pt-4 pb-3">
         <div className="flex items-center gap-2">
           <h3 className="text-base font-semibold text-[var(--color-text)]">{track.title}</h3>
@@ -255,14 +297,35 @@ function TrackPlayer({ track }: { track: Track }) {
           </div>
         </div>
         <div className="mt-1 flex items-center justify-between text-[10px] font-mono text-[var(--color-text-muted)]">
-          <span>{fmt(currentTime)}</span>
-          <span>{duration > 0 ? fmt(duration) : "--:--"}</span>
+          <span>{timeDisplay}</span>
+          <span>{durationDisplay}</span>
         </div>
       </div>
 
-      {/* Description */}
-      <div className="border-t border-[var(--color-border)]/30 px-5 py-3">
-        <p className="text-xs leading-relaxed text-[var(--color-text-muted)]">{track.description}</p>
+      {/* Collapsible details */}
+      <div className="border-t border-[var(--color-border)]/30">
+        <button
+          onClick={() => setShowDetails(!showDetails)}
+          className="flex w-full items-center gap-2 px-5 py-2.5 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors"
+        >
+          <svg
+            width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+            className={`transition-transform ${showDetails ? "rotate-90" : ""}`}
+          >
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+          What's in this export
+        </button>
+        {showDetails && (
+          <ul className="px-5 pb-3 space-y-1">
+            {track.details.map((d, i) => (
+              <li key={i} className="flex items-start gap-2 text-xs text-[var(--color-text-muted)]">
+                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[var(--color-text-muted)]/40" />
+                {d}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
