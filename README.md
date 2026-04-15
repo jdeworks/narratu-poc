@@ -4,25 +4,52 @@ AI-powered audiobook creator that turns short stories into voiced audiobooks wit
 
 _Narratu — Latin for "you narrate."_
 
-**[Try it live](https://jdeworks.github.io/narratu-poc/)**
+**[Try the live demo](https://jdeworks.github.io/narratu-poc/)**
 
-## What it does
+## What Narratu Does
 
-1. Paste a short story (up to ~5k tokens)
-2. AI extracts characters, speech directions, and inflection markers
-3. Edit voice-optimized text and character voice profiles
-4. Generate voiced audio with distinct character voices and narration
-5. Play or download the finished audiobook as MP3
+Narratu transforms written stories into fully voiced audiobooks using AI. Each character gets a unique voice matched to their personality, and the entire production pipeline — from text analysis to final audio export — runs client-side in the browser.
 
-## Development
+### Key Capabilities
 
-```bash
-npm install
-npm run dev       # local dev server
-npm run tunnel    # dev server accessible via cloudflare tunnel
-npm run build     # build to docs/
-npm test          # run tests
-```
+- **AI Story Analysis** — Extracts characters, dialogue, emotions, and speech directions from raw text using LLM analysis
+- **Automatic Voice Matching** — Scores and ranks voices from a library of 500+ options against each character's profile (age, gender, accent, personality)
+- **Unique Voice Per Character** — Every character gets a distinct AI voice; the narrator, the protagonist, and the villain all sound different
+- **4-Track Audio Mixer** — Timeline editor with speaker, noise, music, and SFX tracks; waveform visualization, zoom, and per-segment controls
+- **AI-Optimized Audio Settings** — Per-segment gap timing, LUFS normalization, fade curves, and trailing artifact detection, all auto-tuned by AI analysis
+- **Background Music & Sound Effects** — AI-suggested atmospheric audio placed at narrative-appropriate moments
+- **MP3 Export** — Voiceline-only or full audiobook export with all mixer settings applied
+- **BYOK (Bring Your Own Key)** — Users provide their own API keys; nothing is stored server-side. Full transparency on costs and provider choice
+- **Character Relationship Diagrams** — Auto-generated Mermaid flowcharts showing character connections and relationship types
+
+### Demo: "The Open Window" by Saki
+
+The live demo includes a complete audiobook of Saki's "The Open Window" with:
+- 63 voiced segments across 7 distinct AI characters
+- Pre-computed voice matches ranked by character fit
+- AI-optimized audio settings (gap timing, normalization, fades)
+- Background music and sound effects auto-placed on the mixer timeline
+- Full export capability — [listen to the voiceline export](demo/)
+
+## For Investors
+
+Narratu demonstrates a viable path to an AI audiobook production tool that:
+
+1. **Runs entirely client-side** — No server costs for audio processing. Users bring their own API keys, making the marginal cost of each audiobook near-zero for the platform.
+
+2. **Solves a real production bottleneck** — Professional audiobook production costs $2,000–$10,000+ per title. Narratu targets 95% automation: AI handles analysis, voice matching, mixing, and optimization. Users confirm and fine-tune.
+
+3. **Differentiates on voice quality** — Every character gets a unique, AI-matched voice. This isn't text-to-speech with one narrator; it's a cast of distinct voices with personality-appropriate matching.
+
+4. **Has a clear expansion path:**
+   - **Audiobook mode** (current) — Narrator reads all text including dialogue attribution
+   - **Audio play mode** (planned) — Direct speech only, no narrator, with sound effects — like a radio drama
+   - **Voice cloning** (planned) — Clone your own voice or a specific actor's voice for any character
+   - **Batch production** (planned) — Process entire book catalogs with consistent quality
+
+5. **Built for iteration** — The three-tier settings system (default → AI-optimized → user override) means every decision is visible and reversible. Users can trust the AI defaults or fine-tune anything.
+
+See the [For Investors page](https://jdeworks.github.io/narratu-poc/) in the live demo for more detail.
 
 ## Lessons Learned — Building an Audiobook Engine with AI
 
@@ -36,97 +63,55 @@ This project was built across 4 Claude Code sessions (~135 commits, April 2026).
 
 **Fix:** Switched to ElevenLabs (eleven_v3 model, MOS 4.8). Kept the Hume engine wired in for users who prefer it, but made ElevenLabs the default. The entire demo was regenerated.
 
-**Side effect:** ElevenLabs uses `[audio tags]` for expressiveness instead of Hume's `description` field. This required rewriting the LLM prompt, the segment data model, and the voice text rendering. Two systems, two mental models.
-
-**Takeaway:** Evaluate TTS providers on full-story output, not single-segment demos. Sibilance, inter-segment consistency, and tail behavior only show up at scale. Build the engine provider-agnostic from day one — we did, and the switch was survivable.
+**Takeaway:** Evaluate TTS providers on full-story output, not single-segment demos. Sibilance, inter-segment consistency, and tail behavior only show up at scale. Build the engine provider-agnostic from day one.
 
 ### 2. Trailing artifact detection — 5 detection algorithms before it worked
 
 **Problem:** TTS engines produce trailing artifacts: clicks, breaths, phantom phonemes, resonance tails. These are inaudible in isolation but create a "machine gun" effect when segments play back-to-back.
 
-**Attempt 1:** Fixed earlyStopMs per segment (trim last N ms). Too blunt — trimmed real speech on short segments, didn't trim enough on long ones.
+**Attempts 1-4:** Fixed earlyStopMs (too blunt), RMS silence detection (missed low-level artifacts), dip-then-rise patterns (false positives on consonants), non-monotonic decay detection (needed careful tuning).
 
-**Attempt 2:** RMS-based silence detection on the last 300ms. Missed low-level artifacts that were above the silence threshold but clearly not speech (TTS "room tone").
+**Attempt 5 (final):** Multi-check pipeline combining all methods, plus end-spike detection and relative silence thresholds.
 
-**Attempt 3:** Dip-then-rise pattern detection (energy drops then rises at the tail). Caught trailing breaths but false-positived on normal speech consonants between syllables. Required minimum 15ms of genuine silence before flagging.
+**Then the real fix:** Adding `[pause]` to the end of every ElevenLabs prompt + lowering `style` from 0.5 to 0.2 eliminated 56% of artifacts at the source. The detector went from flagging 16/63 segments to 7/63.
 
-**Attempt 4:** Non-monotonic decay detection (energy should decay monotonically at end of speech — if it rises, that's an artifact). Caught phantom phonemes but needed careful trough positioning to avoid flagging natural speech variation.
-
-**Attempt 5 (final):** Multi-check pipeline combining all four methods, plus end-spike detection (click in last 10ms) and relative silence threshold (90th percentile speech level x 8%). Also added a pre-check that scans the full audio for trailing silence, skipping the last 100ms to avoid masking by end-clicks.
-
-**Then the real fix:** After all that detection work, adding `[pause]` to the end of every ElevenLabs prompt + lowering `style` from 0.5 to 0.2 eliminated 56% of artifacts at the source. The detector went from flagging 16/63 segments to 7/63.
-
-**Takeaway:** Fix artifacts at the source (prompt engineering, model settings) before building complex detection. But keep the detector — TTS models are non-deterministic, and artifacts will always appear in some generations. Defense in depth: prompt fixes + detection + configurable earlyStop + fade-out curves.
+**Takeaway:** Fix artifacts at the source (prompt engineering, model settings) before building complex detection. But keep the detector — TTS models are non-deterministic. Defense in depth: prompt fixes + detection + configurable earlyStop + fade-out curves.
 
 ### 3. Sample rate mismatch — the "weird sounds" that weren't encoding bugs
 
-**Problem:** MP3 export produced audio with distorted pitch and wrong speed. Sounded like everything was playing through a broken filter.
+**Problem:** MP3 export produced audio with distorted pitch and wrong speed.
 
-**Wrong hypothesis:** Suspected the `@breezystack/lamejs` MP3 encoder was buggy, or that the `Int8Array` → `Uint8Array.from()` conversion was flipping byte signs. Wrote 6 tests proving the encoder worked perfectly at both 44100 and 48000 Hz.
+**Wrong hypothesis:** Suspected the MP3 encoder was buggy. Wrote 6 tests proving it worked perfectly.
 
-**Root cause:** `mixer-export.ts` hardcoded `const sampleRate = 44100`, but `new AudioContext().decodeAudioData()` decodes at the system's sample rate (48000 Hz on most modern hardware). So 48000 Hz PCM was written into a 44100 Hz buffer and encoded as 44100 Hz MP3 — playing ~9% slower with lower pitch.
+**Root cause:** `mixer-export.ts` hardcoded `sampleRate = 44100`, but `AudioContext.decodeAudioData()` decodes at the system's sample rate (48000 Hz on most modern hardware). 48000 Hz PCM encoded as 44100 Hz MP3 — playing ~9% slower with lower pitch.
 
 **Fix:** One line: `const sampleRate = audioCtx.sampleRate`.
 
-**Bonus bug found:** The voiceline export (`exportAudiobook`) ignored per-segment settings entirely — it used `DEFAULT_CONFIG` with `earlyStopMs: 0`, so all the carefully tuned tail trimming and fades were thrown away on export. Fixed by reading from the segment-settings store.
-
-**Takeaway:** When audio sounds "weird," check sample rates before debugging encoding. And when two code paths do the same thing (mixer export vs voiceline export), they need the same settings source — copy-paste of the processing logic without the settings wiring is a guaranteed divergence bug.
+**Takeaway:** When audio sounds "weird," check sample rates before debugging encoding.
 
 ### 4. Volume systems — three rewrites from "too loud" to "barely there"
 
-**Problem:** Background music drowned out speech. Users couldn't hear the story.
+**Problem:** Background music drowned out speech. Three different volume systems (mixer, sidebar, export) each applied different gain boosts.
 
-**Iteration 1:** LLM suggested volumes of 15-60% for music. Way too loud — music should be atmospheric texture, not foreground.
+**Final fix:** Removed all gain boosts. Volume values are direct linear gain: 3% music = 0.03 gain. Slider max capped at 20%. One system, one truth.
 
-**Iteration 2:** Added a 2.5x gain boost in the playback engine to compensate for Web Audio API volume perception. Now the mixer showed "5%" but the actual output was 12.5%. Sidebar preview had a different boost factor. Export used yet another gain path. Three different volume systems, none matching.
+**Takeaway:** Resist hidden multipliers. If raw values seem wrong, fix the range and defaults — don't add a compensation layer that every new code path must know about.
 
-**Iteration 3 (final):** Removed all gain boosts. Volume values are direct linear gain: 3% music = 0.03 gain. Slider max capped at 20%. LLM prompt updated to suggest 2-5% for music, 3-8% for SFX. One system, one truth.
+### 5. Settings architecture — the three-tier merge
 
-**Takeaway:** Resist the urge to add compensation multipliers. If the raw values seem wrong, fix the range and defaults — don't add a hidden multiplier that future code has to know about. "Volume 5% but actually 12.5%" is a bug that will bite every new code path.
+**Problem:** Audio segments need per-segment settings from multiple sources (auto-detected, AI-suggested, user-edited). The UI needs to show where each value came from.
 
-### 5. The DemoPage — four complete rewrites in one session
+**Solution:** Three-tier `TrackedValue` system: `{ value, origin: "default" | "analyzed" | "user", defaultValue }`. Origin badges in the UI show provenance at a glance. The settings store is the single source of truth for both the mixer timeline and the export pipeline.
 
-**Iteration 1:** Simple audio player with play/pause per segment. Functional but didn't showcase the product's capabilities.
+**Takeaway:** For any system where values come from multiple sources, track provenance alongside the value. It costs almost nothing but saves enormous UI complexity.
 
-**Iteration 2:** Editor-style layout with segment rows, character badges, emotion/inflection icons. Better, but the per-segment view didn't convey "this is an audiobook."
+### 6. LLM prompt engineering for audio — calculations vs. anchors
 
-**Iteration 3:** Added the full audio mixer (4-track timeline with waveforms, zoom, drag, crossfade). The demo now shows the mixing capabilities, but the page was 675 LOC and growing.
+**Early mistake:** Asked the LLM to output precise millisecond values for SFX timing. The LLM hallucinated numbers nowhere near actual audio positions.
 
-**Iteration 4:** Extracted components aggressively (DemoSegmentRow, StoryTextModal, SegmentSettingsPanel, DeviationReport). DemoPage went from 675 → 292 LOC. The mixer auto-loads and auto-places regions so the demo works without user interaction.
+**Fix:** LLM provides word-level anchors ("play door creak at word 'creaked'"), code resolves words to millisecond positions using actual segment durations. LLM handles semantic understanding; code handles arithmetic.
 
-**Takeaway:** Demo pages evolve faster than feature pages because they serve a different audience (investors, not users). Accept that rewrites are part of the process — but extract components early so each rewrite touches fewer files.
-
-### 6. Dead code across sessions — the Hume graveyard
-
-**Problem:** After switching from Hume to ElevenLabs, Hume-specific code persisted across 3 sessions: a 120-voice data file, preview/synthesis functions, `"HUME_AI"` provider strings hardcoded in components that now only showed ElevenLabs voices.
-
-**Why it persisted:** Each session focused on new features, not cleanup. The Hume code didn't break anything — it was just dead weight. The `PresetVoice` type lived in `hume-voices.ts` but was actually generic, used by ElevenLabs components. Renaming it felt risky mid-feature.
-
-**Fix (session 4):** Moved `PresetVoice` to `types/voices.ts` with generic `provider: string`. Deleted the 120-voice data file. Removed dead exports from both TTS engines. Fixed misleading provider strings. Added orphaned `Header.tsx` deletion. Total: -356 lines.
-
-**Takeaway:** Dead code from provider switches accumulates silently because it doesn't cause errors. Schedule explicit cleanup sessions. When you switch providers, grep for the old provider name across the entire codebase — string literals like `"HUME_AI"` are invisible to import analysis.
-
-### 7. Settings architecture — the three-tier merge that saved the UI
-
-**Problem:** Audio segments need per-segment settings (loudness, fades, gap timing). Some should be auto-detected (tail artifacts), some rule-based (gap duration by speaker transition), some user-edited. The UI needs to show where each value came from.
-
-**Naive approach:** Just store the final value. Lost provenance — users couldn't tell if a value was auto-detected, AI-suggested, or manually set.
-
-**Solution:** Three-tier `TrackedValue` system: `{ value, origin: "default" | "analyzed" | "user", defaultValue }`. Each setting has a reset button that returns to the analyzed or default value. Origin badges in the UI show provenance at a glance. The segment-analyzer runs on load and populates the "analyzed" tier; user edits override to "user" tier.
-
-**Side effect:** The settings store became the single source of truth for both the mixer timeline (visual positions, waveform rendering) and the export pipeline (actual audio processing). Bidirectional binding: dragging a segment in the mixer updates `gapBeforeMs` in the settings store, which updates the settings panel, which updates the export.
-
-**Takeaway:** For any system where values come from multiple sources (auto-detection, AI, user), track provenance alongside the value. It costs almost nothing in data size but saves enormous UI complexity — "why is this value 50ms?" is answered by the origin badge.
-
-### 8. LLM prompt engineering for audio — calculations vs. anchors
-
-**Early mistake:** Asked the LLM to output precise millisecond values for SFX timing ("play door creak at 14,350ms"). The LLM hallucinated numbers that were nowhere near the actual audio positions.
-
-**Fix:** LLM provides word-level anchors ("play door creak at word 'creaked'"), and code resolves words to millisecond positions using the actual segment audio durations. The LLM is good at understanding narrative structure ("the creak happens when she opens the door"); code is good at math.
-
-**Also applied to:** Music placement (LLM says "start piano at segment 5, end at segment 12" — code computes the actual ms range), gap duration (LLM provides speaker transition context — code computes ms from trailing silence measurements).
-
-**Takeaway:** Use LLMs for semantic understanding (what happens where in the story), never for numerical precision. The boundary is: LLM provides anchors and qualitative guidance, code does all arithmetic.
+**Takeaway:** Use LLMs for semantic understanding (what happens where), never for numerical precision.
 
 ## License
 
