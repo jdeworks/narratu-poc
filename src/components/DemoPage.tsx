@@ -121,6 +121,9 @@ export default function DemoPage() {
     return () => observer.disconnect();
   }, [loadMore]);
 
+  const mixerLoading = useMixerStore((s) => s.loading);
+  const mixerSegmentCount = useMixerStore((s) => s.segments.length);
+
   if (error) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-8 text-center sm:px-6 sm:py-12">
@@ -138,8 +141,6 @@ export default function DemoPage() {
     );
   }
 
-  const mixerLoading = useMixerStore((s) => s.loading);
-  const mixerSegmentCount = useMixerStore((s) => s.segments.length);
   const allSpeakers = characters.map((c) => c.name);
   const hasAudio = manifest.audioSegments.length > 0;
   const exportReady = hasAudio && !mixerLoading && mixerSegmentCount >= segments.length;
