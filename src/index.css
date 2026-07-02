@@ -29,13 +29,13 @@
   --color-emotion-bg: #fffbeb;
   --color-emotion-text: #92400e;
 
-  /* Origin indicators — must read on surface bg */
+  /* Origin indicators — must read on surface bg AND on their own 10% tinted bg */
   --color-origin-default: #64748b;
-  --color-origin-analyzed: #0284c7;
-  --color-origin-user: #b45309;
+  --color-origin-analyzed: #0369a1;
+  --color-origin-user: #92400e;
   --color-origin-default-bg: rgba(100, 116, 139, 0.1);
-  --color-origin-analyzed-bg: rgba(2, 132, 199, 0.1);
-  --color-origin-user-bg: rgba(180, 83, 9, 0.1);
+  --color-origin-analyzed-bg: rgba(3, 105, 161, 0.1);
+  --color-origin-user-bg: rgba(146, 64, 14, 0.1);
 
   /* Sliders */
   --color-slider-track: #cbd5e1;
