@@ -200,7 +200,7 @@ export default function DemoSegmentRow({
         <button
           onClick={(e) => { e.stopPropagation(); onClickSpeaker(); }}
           className="cursor-pointer text-xs font-semibold hover:underline"
-          style={{ color: color.border }}
+          style={{ color: color.text }}
         >
           {segment.speaker}
         </button>

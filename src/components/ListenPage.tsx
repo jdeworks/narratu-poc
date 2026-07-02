@@ -13,6 +13,8 @@ interface Track {
   file: string;
   badge: string;
   badgeColor: string;
+  /** Text color for the badge when it needs higher contrast than badgeColor provides. */
+  badgeTextColor?: string;
 }
 
 const TRACKS: Track[] = [
@@ -30,6 +32,9 @@ const TRACKS: Track[] = [
     file: "demo/exports/poc-export-the-open-window-voiceline.mp3",
     badge: "Voices",
     badgeColor: "var(--color-origin-analyzed)",
+    // --color-origin-analyzed is sky-600 (#0284c7); use sky-700 (#0369a1) = var(--color-primary)
+    // for text to achieve ≥4.5:1 on the 15%-tinted badge background (light mode).
+    badgeTextColor: "var(--color-primary)",
   },
   {
     id: "full",
@@ -45,6 +50,9 @@ const TRACKS: Track[] = [
     file: "demo/exports/poc-export-the-open-window-full.mp3",
     badge: "Full Mix",
     badgeColor: "var(--color-primary)",
+    // --color-primary is sky-700 (#0369a1); use sky-800 (#075985) = var(--color-primary-hover)
+    // for text to achieve ≥4.5:1 on the 15%-tinted badge background (light mode).
+    badgeTextColor: "var(--color-primary-hover)",
   },
 ];
 
@@ -267,7 +275,7 @@ function TrackPlayer({ track }: { track: Track }) {
           <h3 className="text-base font-semibold text-[var(--color-text)]">{track.title}</h3>
           <span
             className="rounded-full px-2 py-0.5 text-[10px] font-medium"
-            style={{ backgroundColor: `color-mix(in srgb, ${track.badgeColor} 15%, transparent)`, color: track.badgeColor }}
+            style={{ backgroundColor: `color-mix(in srgb, ${track.badgeColor} 15%, transparent)`, color: track.badgeTextColor ?? track.badgeColor }}
           >
             {track.badge}
           </span>

@@ -17,7 +17,7 @@ interface PaletteEntry {
 
 // 12 entries with well-spaced hues (30° apart on the color wheel)
 const PALETTE: PaletteEntry[] = [
-  { bg: "rgba(56, 189, 248, 0.12)", border: "rgb(56, 189, 248)", textDark: "rgb(125, 211, 252)", textLight: "rgb(2, 132, 199)", hue: 199 },    // sky
+  { bg: "rgba(56, 189, 248, 0.12)", border: "rgb(56, 189, 248)", textDark: "rgb(125, 211, 252)", textLight: "rgb(3, 105, 161)", hue: 199 },    // sky — sky-700 #0369a1 gives 5.9:1 on white, 5.4:1 on surface
   { bg: "rgba(251, 146, 60, 0.12)", border: "rgb(251, 146, 60)", textDark: "rgb(253, 186, 116)", textLight: "rgb(194, 65, 12)", hue: 27 },      // orange
   { bg: "rgba(167, 139, 250, 0.12)", border: "rgb(167, 139, 250)", textDark: "rgb(196, 181, 253)", textLight: "rgb(109, 40, 217)", hue: 263 },   // violet
   { bg: "rgba(52, 211, 153, 0.12)", border: "rgb(52, 211, 153)", textDark: "rgb(110, 231, 183)", textLight: "rgb(4, 120, 87)", hue: 158 },      // emerald
