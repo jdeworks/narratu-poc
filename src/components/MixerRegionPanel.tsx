@@ -52,7 +52,7 @@ export default function MixerRegionPanel({ trackId }: Props) {
       {/* Upload button */}
       <button
         onClick={() => fileRef.current?.click()}
-        className="rounded p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text)]"
+        className="rounded p-1.5 text-[var(--color-text-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text)]"
         title={`Upload ${trackId === "music" ? "music" : "sound effect"}`}
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -61,13 +61,13 @@ export default function MixerRegionPanel({ trackId }: Props) {
           <line x1="12" y1="3" x2="12" y2="15" />
         </svg>
       </button>
-      <input ref={fileRef} type="file" accept="audio/*" className="hidden" onChange={handleUpload} />
+      <input ref={fileRef} type="file" accept="audio/*" className="hidden" aria-label={`Upload ${trackId === "music" ? "music" : "sound effect"}`} onChange={handleUpload} />
 
       {/* Delete selected region */}
       {selected && (
         <button
           onClick={() => removeRegion(selected.id)}
-          className="rounded p-1 text-[var(--color-danger)] hover:bg-[var(--color-surface)]"
+          className="rounded p-1.5 text-[var(--color-danger)] hover:bg-[var(--color-surface)]"
           title="Remove selected region"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

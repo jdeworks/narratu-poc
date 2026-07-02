@@ -259,7 +259,7 @@ function RegionEditPanel({ regionId }: { regionId: string }) {
         </span>
         <span className="text-xs text-[var(--color-text-muted)]">{region.id}</span>
         <button onClick={() => removeRegion(region.id)}
-          className="ml-auto rounded p-1 text-[var(--color-danger)] hover:bg-[var(--color-surface)]" title="Delete">
+          className="ml-auto rounded p-1.5 text-[var(--color-danger)] hover:bg-[var(--color-surface)]" title="Delete">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
           </svg>
