@@ -214,7 +214,7 @@ function OverviewTab({ report, characterChanges, allSettings }: {
       <div className="rounded-lg border border-dashed border-[var(--color-border)] p-3">
         <button
           onClick={() => setShowPatterns(!showPatterns)}
-          className="flex w-full items-center gap-2 text-left text-sm font-medium text-[var(--color-text-secondary)]"
+          className="flex w-full items-center gap-2 py-2 text-left text-sm font-medium text-[var(--color-text-secondary)]"
         >
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
             className={`transition-transform ${showPatterns ? "rotate-90" : ""}`}>

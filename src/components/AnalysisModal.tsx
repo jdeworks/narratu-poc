@@ -98,7 +98,7 @@ export default function AnalysisModal({
           </div>
           <button
             onClick={onClose}
-            className="cursor-pointer rounded p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-text)]"
+            className="cursor-pointer rounded p-1.5 text-[var(--color-text-muted)] hover:bg-[var(--color-bg)] hover:text-[var(--color-text)]"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6L6 18M6 6l12 12" />
@@ -183,7 +183,7 @@ function ExtractionTab({
       <h4 className="mb-1 text-xs font-semibold text-[var(--color-text-secondary)]">
         Pass 1: Character Extraction
       </h4>
-      <p className="mb-3 text-xs text-[var(--color-text-muted)]">
+      <p className="mb-3 max-w-prose text-xs text-[var(--color-text-muted)]">
         AI analyzed the full story text and extracted {characters.length} characters
         with {segments.length} segments. Click a character to view in sidebar.
       </p>
@@ -253,7 +253,7 @@ function RelationshipsTab({
       <h4 className="mb-1 text-xs font-semibold text-[var(--color-text-secondary)]">
         Pass 2: Character Relationships
       </h4>
-      <p className="mb-3 text-xs text-[var(--color-text-muted)]">
+      <p className="mb-3 max-w-prose text-xs text-[var(--color-text-muted)]">
         Hover to highlight connections. Click a character to open in sidebar.
         Thick = family, normal = social, dotted = conflict/deception.
       </p>
@@ -268,6 +268,7 @@ function RelationshipsTab({
           value={mermaidCode}
           readOnly
           rows={Math.min(mermaidCode.split("\n").length + 1, 12)}
+          aria-label="Character relationship diagram source"
           className="mt-1.5 w-full cursor-default resize-none rounded border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 font-mono text-xs leading-relaxed text-[var(--color-text-secondary)]"
           title="Editable in production"
         />
@@ -294,7 +295,7 @@ function VoiceProfilesTab({
       <h4 className="mb-1 text-xs font-semibold text-[var(--color-text-secondary)]">
         Pass 2: Voice Design Profiles
       </h4>
-      <p className="mb-3 text-xs text-[var(--color-text-muted)]">
+      <p className="mb-3 max-w-prose text-xs text-[var(--color-text-muted)]">
         AI-generated voice descriptions for the ElevenLabs Voice Design API.
         Used as the starting prompt when creating custom voices. Editable in production.
       </p>
@@ -314,6 +315,7 @@ function VoiceProfilesTab({
                 value={profile}
                 readOnly
                 rows={2}
+                aria-label={`Voice profile for ${name}`}
                 className="w-full cursor-default resize-none rounded border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1.5 font-mono text-xs leading-relaxed text-[var(--color-text-secondary)]"
                 title="Editable in production"
               />

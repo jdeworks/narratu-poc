@@ -271,7 +271,7 @@ export default function DemoPage() {
               <h2 className="text-2xl font-bold">{manifest.title}</h2>
               <p className="text-sm text-[var(--color-text-secondary)]">
                 {segments.length} segments &middot;{" "}
-                <button onClick={() => setShowCharacters(!showCharacters)} className="cursor-pointer text-[var(--color-primary)] hover:underline">
+                <button onClick={() => setShowCharacters(!showCharacters)} className="inline-flex cursor-pointer items-center py-0.5 text-[var(--color-primary)] hover:underline">
                   {characters.length} characters
                 </button>
                 {" "}&middot; by{" "}
@@ -280,7 +280,7 @@ export default function DemoPage() {
                 </a>
                 {" "}&middot; Public Domain
               </p>
-              <p className="mt-1 text-xs text-[var(--color-text-muted)]">{manifest.description}</p>
+              <p className="mt-1 max-w-prose text-xs text-[var(--color-text-muted)]">{manifest.description}</p>
             </div>
             <div className="flex flex-col items-end gap-1">
               <button

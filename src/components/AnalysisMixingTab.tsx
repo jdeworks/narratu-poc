@@ -159,7 +159,7 @@ function SuggestionCard({ suggestion: s, segments, allSpeakers }: {
             </span>
             <span className="text-sm font-medium text-[var(--color-text)]">{s.title}</span>
           </div>
-          <p className="mt-1 text-xs text-[var(--color-text-secondary)]">{s.description}</p>
+          <p className="mt-1 max-w-prose text-xs text-[var(--color-text-secondary)]">{s.description}</p>
         </div>
         <span className="shrink-0 text-xs text-[var(--color-text-muted)]">
           Seg {s.segmentRange[0] + 1}–{s.segmentRange[1] + 1}

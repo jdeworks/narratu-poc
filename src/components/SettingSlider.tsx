@@ -101,6 +101,7 @@ export default function SettingSlider({ label, description, tracked: tv, min, ma
           max={max}
           step={step}
           defaultValue={tv.value}
+          aria-label={label}
           onBlur={(e) => commitEdit(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") commitEdit((e.target as HTMLInputElement).value);

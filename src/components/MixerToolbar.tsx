@@ -98,7 +98,7 @@ export default function MixerToolbar({ segmentUrls, onClose }: Props) {
       {/* Cursor position — click to type a time to jump to */}
       <input
         aria-label="Cursor position"
-        className="ml-auto w-24 rounded border border-transparent bg-transparent px-1.5 py-0.5 text-right font-mono text-xs text-[var(--color-text-secondary)] hover:border-[var(--color-border)] focus:border-[var(--color-primary)] focus:outline-none"
+        className="ml-auto w-24 rounded border border-transparent bg-transparent px-1.5 py-1 text-right font-mono text-xs text-[var(--color-text-secondary)] hover:border-[var(--color-border)] focus:border-[var(--color-primary)] focus:outline-none"
         value={`${mins}:${String(secs).padStart(2, "0")}.${String(ms).padStart(3, "0")}`}
         onFocus={(e) => e.target.select()}
         onChange={() => {/* controlled by blur */}}
@@ -121,12 +121,12 @@ export default function MixerToolbar({ segmentUrls, onClose }: Props) {
             const total = useMixerStore.getState().totalDurationMs;
             if (total > 0) { setZoom(720 / (total / 1000)); useMixerStore.getState().setScrollLeft(0); }
           }}
-          className="rounded px-1.5 py-0.5 text-[10px] text-[var(--color-text-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text)]"
+          className="rounded px-1.5 py-1.5 text-[10px] text-[var(--color-text-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text)]"
           title="Fit entire timeline in view"
         >
           Fit
         </button>
-        <button onClick={() => setZoom(zoom / 1.5)} className="rounded p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface)]">
+        <button onClick={() => setZoom(zoom / 1.5)} className="rounded p-1.5 text-[var(--color-text-muted)] hover:bg-[var(--color-surface)]">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /><path d="M8 11h6" />
           </svg>
@@ -140,7 +140,7 @@ export default function MixerToolbar({ segmentUrls, onClose }: Props) {
           onChange={(e) => setZoom(Number(e.target.value))}
           className="hidden h-6 w-24 cursor-pointer appearance-none rounded-full bg-[var(--color-slider-track)] sm:block"
         />
-        <button onClick={() => setZoom(zoom * 1.5)} className="rounded p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface)]">
+        <button onClick={() => setZoom(zoom * 1.5)} className="rounded p-1.5 text-[var(--color-text-muted)] hover:bg-[var(--color-surface)]">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /><path d="M11 8v6" /><path d="M8 11h6" />
           </svg>
