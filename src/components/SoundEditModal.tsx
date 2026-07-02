@@ -121,8 +121,8 @@ export default function SoundEditModal({ target, onSave, onClose, disabled }: Pr
                       className={`flex-1 rounded-lg py-1.5 text-xs font-medium transition-colors ${
                         (draft as SfxSuggestion).timing === t
                           ? "bg-[var(--color-primary)] text-[var(--color-primary-text)]"
-                          : "border border-[var(--color-border)] text-[var(--color-text-secondary)]"
-                      } ${disabled ? "opacity-50" : ""}`}>
+                          : `border border-[var(--color-border)] ${disabled ? "text-[var(--color-text-muted)]" : "text-[var(--color-text-secondary)]"}`
+                      }`}>
                       {t}
                     </button>
                   ))}
@@ -181,7 +181,7 @@ function Field({ label, description, disabled, children }: {
   label: string; description?: string; disabled?: boolean; children: React.ReactNode;
 }) {
   return (
-    <div className={disabled ? "opacity-70" : ""}>
+    <div className={disabled ? "cursor-not-allowed" : ""}>
       <label className="mb-1 block text-xs font-medium text-[var(--color-text-muted)]">{label}</label>
       {description && <p className="mb-1.5 text-[10px] text-[var(--color-text-muted)]">{description}</p>}
       {children}

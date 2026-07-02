@@ -268,7 +268,7 @@ function RelationshipsTab({
           value={mermaidCode}
           readOnly
           rows={Math.min(mermaidCode.split("\n").length + 1, 12)}
-          className="mt-1.5 w-full resize-none rounded border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 font-mono text-xs leading-relaxed text-[var(--color-text-secondary)] opacity-75"
+          className="mt-1.5 w-full cursor-default resize-none rounded border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 font-mono text-xs leading-relaxed text-[var(--color-text-secondary)]"
           title="Editable in production"
         />
       </details>
@@ -314,7 +314,7 @@ function VoiceProfilesTab({
                 value={profile}
                 readOnly
                 rows={2}
-                className="w-full resize-none rounded border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1.5 font-mono text-xs leading-relaxed text-[var(--color-text-secondary)] opacity-75"
+                className="w-full cursor-default resize-none rounded border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1.5 font-mono text-xs leading-relaxed text-[var(--color-text-secondary)]"
                 title="Editable in production"
               />
             </div>
