@@ -32,9 +32,10 @@ const TRACKS: Track[] = [
     file: "demo/exports/poc-export-the-open-window-voiceline.mp3",
     badge: "Voices",
     badgeColor: "var(--color-origin-analyzed)",
-    // --color-origin-analyzed is sky-600 (#0284c7); use sky-700 (#0369a1) = var(--color-primary)
-    // for text to achieve ≥4.5:1 on the 15%-tinted badge background (light mode).
-    badgeTextColor: "var(--color-primary)",
+    // --color-origin-analyzed is sky-700 (#0369a1); badge bg = color-mix(#0369a1 15%) ≈ L 0.724.
+    // sky-700 text (#0369a1, L 0.127) gives only 4.37:1 on that bg; use sky-800 (#075985, L 0.089)
+    // = var(--color-primary-hover) → 5.57:1 ≥ 4.5:1 ✓
+    badgeTextColor: "var(--color-primary-hover)",
   },
   {
     id: "full",
