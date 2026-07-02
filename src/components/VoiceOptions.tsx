@@ -415,7 +415,7 @@ function StoredVoiceRow({
         ) : (
           <button
             onClick={onSelect}
-            className="shrink-0 cursor-pointer rounded px-2 py-0.5 text-xs text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-primary)]"
+            className="shrink-0 cursor-pointer rounded px-2 py-1 text-xs text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-primary)]"
           >
             Select
           </button>
@@ -465,12 +465,13 @@ function VoiceTuning() {
           {/* De-esser */}
           <div>
             <div className="mb-1 flex items-center justify-between">
-              <label className="text-xs text-[var(--color-text-muted)]">De-esser</label>
+              <label htmlFor="voice-tuning-deesser" className="text-xs text-[var(--color-text-muted)]">De-esser</label>
               <span className="text-xs font-medium text-[var(--color-text-secondary)]">
                 {deEsser === 0 ? "Off" : `${deEsser}%`}
               </span>
             </div>
             <input
+              id="voice-tuning-deesser"
               type="range"
               min={0}
               max={100}
@@ -487,12 +488,13 @@ function VoiceTuning() {
           {/* Brightness / Warmth */}
           <div>
             <div className="mb-1 flex items-center justify-between">
-              <label className="text-xs text-[var(--color-text-muted)]">Tone</label>
+              <label htmlFor="voice-tuning-tone" className="text-xs text-[var(--color-text-muted)]">Tone</label>
               <span className="text-xs font-medium text-[var(--color-text-secondary)]">
                 {brightness === 0 ? "Neutral" : brightness < 0 ? "Warm" : "Bright"}
               </span>
             </div>
             <input
+              id="voice-tuning-tone"
               type="range"
               min={-12}
               max={12}

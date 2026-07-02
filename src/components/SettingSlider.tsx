@@ -47,7 +47,7 @@ export default function SettingSlider({ label, description, tracked: tv, min, ma
   }
 
   return (
-    <div className="group relative flex min-w-[340px] items-center gap-2 py-1 sm:gap-3" title={readOnly ? "Editable in production mode" : undefined}>
+    <div className="group relative flex min-w-0 items-center gap-2 py-1 sm:min-w-[340px] sm:gap-3" title={readOnly ? "Editable in production mode" : undefined}>
       {/* Label + info icon */}
       <span className="flex w-20 shrink-0 items-center gap-1 text-xs text-[var(--color-text-muted)] sm:w-28">
         {label}
@@ -84,7 +84,8 @@ export default function SettingSlider({ label, description, tracked: tv, min, ma
         value={tv.value}
         disabled={readOnly}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className={`h-1.5 flex-1 appearance-none rounded-full ${readOnly ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+        aria-label={label}
+        className={`h-6 flex-1 cursor-pointer appearance-none rounded-full ${readOnly ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
         style={{
           background: `linear-gradient(to right, ${originColor} 0%, ${originColor} ${((tv.value - min) / (max - min)) * 100}%, var(--color-slider-track) ${((tv.value - min) / (max - min)) * 100}%, var(--color-slider-track) 100%)`,
           accentColor: originColor,

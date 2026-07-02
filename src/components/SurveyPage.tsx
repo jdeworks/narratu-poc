@@ -91,7 +91,7 @@ export default function SurveyPage() {
 
   if (submitted) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8 text-center sm:px-6 sm:py-12">
+      <div className="mx-auto max-w-2xl px-4 py-8 text-center sm:px-6 sm:py-12">
         <div className="mb-4 text-5xl">🙏</div>
         <h2 className="mb-3 text-2xl font-bold">Thank you!</h2>
         <p className="mb-6 text-[var(--color-text-secondary)]">
@@ -116,7 +116,7 @@ export default function SurveyPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
       <div className="mb-8 text-center">
         <h1 className="mb-4 text-4xl font-bold tracking-tight">
           What do you think?
@@ -214,11 +214,12 @@ export default function SurveyPage() {
           </div>
         </Question>
 
-        <Question label="E-Mail or Phone" optional>
+        <Question label="E-Mail or Phone" id="survey-contact" optional>
           <p className="mb-2 text-xs text-[var(--color-text-muted)]">
             If you are a VC or generally interested in the tool, leave your contact info so I can reach out.
           </p>
           <input
+            id="survey-contact"
             type="text"
             value={data.contactInfo}
             onChange={(e) => update("contactInfo", e.target.value)}
@@ -227,8 +228,9 @@ export default function SurveyPage() {
           />
         </Question>
 
-        <Question label="Anything else you'd like to share?" optional>
+        <Question label="Anything else you'd like to share?" id="survey-feedback" optional>
           <textarea
+            id="survey-feedback"
             value={data.feedback}
             onChange={(e) => update("feedback", e.target.value)}
             placeholder="Ideas, concerns, feature requests..."
@@ -250,16 +252,18 @@ export default function SurveyPage() {
 
 function Question({
   label,
+  id,
   optional,
   children,
 }: {
   label: string;
+  id?: string;
   optional?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-medium text-[var(--color-text)]">
+      <label htmlFor={id} className="mb-2 block text-sm font-medium text-[var(--color-text)]">
         {label}
         {optional && (
           <span className="ml-1 font-normal text-[var(--color-text-muted)]">

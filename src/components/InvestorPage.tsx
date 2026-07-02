@@ -4,7 +4,7 @@ export default function InvestorPage() {
   const setView = useProjectStore((s) => s.setView);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
       {/* PoC banner */}
       <div className="mb-8 rounded-lg border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 px-5 py-3 text-center text-sm text-[var(--color-text-secondary)]">
         <strong className="text-[var(--color-primary)]">

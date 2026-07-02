@@ -32,7 +32,7 @@ export default function SoundSidebar({ onClose, onHighlightSegments }: Props) {
   useEffect(() => () => onHighlightSegments?.(null), []);  // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <aside className="flex h-full w-full shrink-0 flex-col border-l border-[var(--color-border)] bg-[var(--color-surface)] sm:w-72">
+    <aside className="flex h-full w-full shrink-0 flex-col border-l border-[var(--color-border)] bg-[var(--color-surface)] max-sm:fixed max-sm:inset-y-0 max-sm:right-0 max-sm:z-40 max-sm:w-80 sm:w-72">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[var(--color-border)] px-4 py-3">
         <div>

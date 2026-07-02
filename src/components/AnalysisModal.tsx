@@ -83,6 +83,8 @@ export default function AnalysisModal({
       onMouseDown={onClose}
     >
       <div
+        role="dialog"
+        aria-label="AI Analysis"
         className="mx-4 flex max-h-[85vh] w-full max-w-3xl flex-col rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xl"
         onMouseDown={(e) => e.stopPropagation()}
       >
@@ -105,10 +107,12 @@ export default function AnalysisModal({
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-[var(--color-border)] bg-[var(--color-bg)]">
+        <div role="tablist" className="flex border-b border-[var(--color-border)] bg-[var(--color-bg)]">
           {tabs.map((tab) => (
             <button
               key={tab.key}
+              role="tab"
+              aria-selected={activeTab === tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`cursor-pointer px-4 py-2 text-xs font-medium transition-colors ${
                 activeTab === tab.key
@@ -122,7 +126,7 @@ export default function AnalysisModal({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-auto p-5">
+        <div role="tabpanel" className="flex-1 overflow-auto p-5">
           {activeTab === "extraction" && (
             <ExtractionTab
               characters={characters}

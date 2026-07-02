@@ -97,6 +97,7 @@ export default function MixerToolbar({ segmentUrls, onClose }: Props) {
 
       {/* Cursor position — click to type a time to jump to */}
       <input
+        aria-label="Cursor position"
         className="ml-auto w-24 rounded border border-transparent bg-transparent px-1.5 py-0.5 text-right font-mono text-xs text-[var(--color-text-secondary)] hover:border-[var(--color-border)] focus:border-[var(--color-primary)] focus:outline-none"
         value={`${mins}:${String(secs).padStart(2, "0")}.${String(ms).padStart(3, "0")}`}
         onFocus={(e) => e.target.select()}
@@ -135,8 +136,9 @@ export default function MixerToolbar({ segmentUrls, onClose }: Props) {
           min="0.5"
           max="500"
           value={zoom}
+          aria-label="Zoom level"
           onChange={(e) => setZoom(Number(e.target.value))}
-          className="hidden h-1 w-24 cursor-pointer appearance-none rounded-full bg-[var(--color-slider-track)] sm:block"
+          className="hidden h-6 w-24 cursor-pointer appearance-none rounded-full bg-[var(--color-slider-track)] sm:block"
         />
         <button onClick={() => setZoom(zoom * 1.5)} className="rounded p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface)]">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

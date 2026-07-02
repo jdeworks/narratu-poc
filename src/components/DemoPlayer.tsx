@@ -32,7 +32,7 @@ export default function DemoPlayer({ manifest }: Props) {
   const gapTimerRef = useRef<number>(0);
   const animRef = useRef<number>(0);
   const playingRef = useRef(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLOListElement>(null);
   const lastTrailingSilence = useRef(0.3);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
@@ -250,7 +250,7 @@ export default function DemoPlayer({ manifest }: Props) {
   return (
     <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
       {/* Controls bar */}
-      <div className="flex items-center gap-3 border-b border-[var(--color-border)] px-4 py-3">
+      <div role="toolbar" aria-label="Playback controls" className="flex items-center gap-3 border-b border-[var(--color-border)] px-4 py-3">
         <button
           onClick={handlePlay}
           className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[var(--color-primary)] text-[var(--color-primary-text)] hover:bg-[var(--color-primary-hover)]"
@@ -302,14 +302,14 @@ export default function DemoPlayer({ manifest }: Props) {
       </div>
 
       {/* Segment list with current highlight */}
-      <div ref={scrollRef} className="max-h-60 overflow-auto">
+      <ol ref={scrollRef} aria-label="Segments" className="max-h-60 overflow-auto">
         {segments.map((seg, i) => {
           const color = getSpeakerColor(seg.speaker, allSpeakers);
           const isCurrent = i === currentIdx;
           const isPast = i < currentIdx;
 
           return (
-            <div
+            <li
               key={seg.id}
               data-player-seg={i}
               onClick={() => handleSeekSegment(i)}
@@ -345,10 +345,10 @@ export default function DemoPlayer({ manifest }: Props) {
                   {seg.voiceText.length > 80 ? seg.voiceText.slice(0, 77) + "..." : seg.voiceText}
                 </p>
               </div>
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ol>
     </div>
   );
 }

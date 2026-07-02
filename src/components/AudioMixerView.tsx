@@ -279,8 +279,9 @@ function RegionEditPanel({ regionId }: { regionId: string }) {
           <>
             <label className="mb-0.5 block text-[10px] text-[var(--color-text-muted)]">Volume ({Math.round(region.volume * 100)}%)</label>
             <input type="range" min="0" max="0.20" step="0.005" value={region.volume}
+              aria-label="Volume"
               onChange={(e) => updateRegion(region.id, { volume: parseFloat(e.target.value) })}
-              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[var(--color-slider-track)]" />
+              className="h-6 w-full cursor-pointer appearance-none rounded-full bg-[var(--color-slider-track)]" />
           </>
         </div>
 
@@ -307,15 +308,17 @@ function RegionEditPanel({ regionId }: { regionId: string }) {
         <div>
           <label className="mb-0.5 block text-[10px] text-[var(--color-text-muted)]">Fade In ({((region.fadeInMs ?? 0) / 1000).toFixed(1)}s)</label>
           <input type="range" min="0" max="5000" step="250" value={region.fadeInMs ?? 0}
+            aria-label="Fade in"
             onChange={(e) => updateRegion(region.id, { fadeInMs: parseInt(e.target.value) })}
-            className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[var(--color-slider-track)]" />
+            className="h-6 w-full cursor-pointer appearance-none rounded-full bg-[var(--color-slider-track)]" />
         </div>
 
         <div>
           <label className="mb-0.5 block text-[10px] text-[var(--color-text-muted)]">Fade Out ({((region.fadeOutMs ?? 0) / 1000).toFixed(1)}s)</label>
           <input type="range" min="0" max="5000" step="250" value={region.fadeOutMs ?? 0}
+            aria-label="Fade out"
             onChange={(e) => updateRegion(region.id, { fadeOutMs: parseInt(e.target.value) })}
-            className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[var(--color-slider-track)]" />
+            className="h-6 w-full cursor-pointer appearance-none rounded-full bg-[var(--color-slider-track)]" />
         </div>
       </div>
 
@@ -328,10 +331,12 @@ function RegionEditPanel({ regionId }: { regionId: string }) {
 
 function MsInput({ label, value, onChange, readOnly }: { label: string; value: number; onChange?: (ms: number) => void; readOnly?: boolean }) {
   const sec = (value / 1000).toFixed(2);
+  const inputId = `ms-input-${label.toLowerCase().replace(/\s+/g, "-")}`;
   return (
     <div>
-      <label className="mb-0.5 block text-[10px] text-[var(--color-text-muted)]">{label}</label>
+      <label htmlFor={inputId} className="mb-0.5 block text-[10px] text-[var(--color-text-muted)]">{label}</label>
       <input
+        id={inputId}
         type="text"
         value={`${sec}s`}
         readOnly={readOnly}

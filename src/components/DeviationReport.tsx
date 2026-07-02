@@ -72,7 +72,7 @@ export default function DeviationReport({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div className="relative mx-4 flex max-h-[90vh] w-full max-w-4xl flex-col rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] shadow-2xl"
+      <div role="dialog" aria-label="Settings Report" className="relative mx-4 flex max-h-[90vh] w-full max-w-3xl flex-col rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] shadow-2xl"
         onClick={(e) => e.stopPropagation()}>
 
         {/* Header + tabs */}
@@ -90,10 +90,12 @@ export default function DeviationReport({
               </svg>
             </button>
           </div>
-          <div className="flex gap-0 px-4">
+          <div role="tablist" className="flex gap-0 px-4">
             {TABS.map((t) => (
               <button
                 key={t.key}
+                role="tab"
+                aria-selected={tab === t.key}
                 onClick={() => setTab(t.key)}
                 className={`relative px-3 py-2 text-sm font-medium transition-colors ${
                   tab === t.key
@@ -111,7 +113,7 @@ export default function DeviationReport({
         </div>
 
         {/* Tab content */}
-        <div className="flex-1 overflow-auto px-6 py-4">
+        <div role="tabpanel" className="flex-1 overflow-auto px-6 py-4">
           {tab === "overview" && (
             <OverviewTab report={report} characterChanges={characterChangeCount} allSettings={allSettings} />
           )}
