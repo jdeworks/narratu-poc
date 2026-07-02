@@ -316,9 +316,7 @@ export default function DemoPlayer({ manifest }: Props) {
               className={`flex cursor-pointer items-start gap-2 border-b border-[var(--color-border)]/30 px-4 py-1.5 transition-all ${
                 isCurrent
                   ? "bg-[var(--color-primary)]/5"
-                  : isPast
-                    ? "opacity-50"
-                    : "opacity-70 hover:opacity-100"
+                  : "hover:bg-[var(--color-surface)]"
               }`}
             >
               {/* Progress indicator */}
@@ -343,7 +341,7 @@ export default function DemoPlayer({ manifest }: Props) {
                     +{timings[i].gapBeforeMs}ms gap
                   </span>
                 )}
-                <p className={`text-xs leading-relaxed ${isCurrent ? "text-[var(--color-text)]" : "text-[var(--color-text-secondary)]"}`}>
+                <p className={`text-xs leading-relaxed ${isCurrent ? "text-[var(--color-text)]" : isPast ? "text-[var(--color-text-muted)]" : "text-[var(--color-text-secondary)]"}`}>
                   {seg.voiceText.length > 80 ? seg.voiceText.slice(0, 77) + "..." : seg.voiceText}
                 </p>
               </div>
