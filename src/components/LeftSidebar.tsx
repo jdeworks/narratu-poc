@@ -89,7 +89,6 @@ export default function LeftSidebar({ onNavigate }: SidebarProps) {
 
         {/* External links */}
         <Section title="Links">
-          <ExternalLink label="GitHub" href="https://github.com/jdeworks/narratu" />
           <ExternalLink label="My Other Projects" href="https://jdeworks.github.io" />
         </Section>
       </div>
