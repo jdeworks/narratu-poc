@@ -155,7 +155,7 @@ export default function InvestorPage() {
       <Section title="Roadmap">
         <div className="space-y-4">
           <RoadmapPhase
-            phase="Phase 1: Proof of Concept (Current)"
+            phase="Phase 1: Proof of Concept"
             items={[
               "Full pipeline working: text analysis, voice matching, generation, mixing, export",
               "Premium AI voices via ElevenLabs with inline emotion tags",
@@ -165,7 +165,7 @@ export default function InvestorPage() {
             ]}
           />
           <RoadmapPhase
-            phase="Phase 2: Product"
+            phase="Phase 2: Product (Current)"
             items={[
               "Backend infrastructure for full-length books (chapters, 100K+ tokens)",
               "Streaming pipeline: generate as you analyze, not after",
