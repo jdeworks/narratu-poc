@@ -1,0 +1,29 @@
+{
+  "siteName": "Narratu",
+  "baseUrl": "https://jdeworks.github.io/narratu-poc/",
+  "publishDir": "docs",
+  "sitemap": "sitemap.xml",
+  "pages": [
+    {
+      "file": "index.html",
+      "route": "",
+      "title": "Narratu – AI Audiobook Creator with Character Voices (Demo)",
+      "description": "Turn short stories into voiced audiobooks with distinct character voices, entirely in the browser. Public demo of Narratu, an AI-powered audiobook creator.",
+      "schema": {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Narratu",
+        "url": "https://jdeworks.github.io/narratu-poc/",
+        "description": "Turn short stories into voiced audiobooks with distinct character voices, entirely in the browser. Public demo of Narratu, an AI-powered audiobook creator.",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any operating system with a modern web browser",
+        "isAccessibleForFree": true,
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    }
+  ]
+}
